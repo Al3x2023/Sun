@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darey - Tu Refugio Personal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #81C784;
+            --accent: #AED581;
+            --light: #F1F8E9;
+            --dark: #33691E;
+            --gray: #757575;
+            --light-gray: #DCEDC8;
+            --success: #66BB6A;
+            --warning: #FFB74D;
+            --danger: #EF5350;
+            --shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+            --radius: 15px;
+            --transition: all 0.4s ease-in-out;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(145deg, #e8f5e9 0%, #dcedc8 100%);
+            min-height: 100vh;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark);
+            line-height: 1.7;
+        }
+
+        /* Mejoras de accesibilidad */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        button:focus,
+        input:focus,
+        textarea:focus {
+            outline: 3px solid var(--primary);
+            outline-offset: 3px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: var(--primary);
+            text-decoration: none;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin: 25px 0;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 75%);
+            transform: rotate(45deg);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-icon {
+            font-size: 3rem;
+            color: #FFF;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
+        }
+
+        h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .app-description {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-top: 12px;
+            position: relative;
+            z-index: 2;
+            max-width: 650px;
+            margin: 12px auto 0;
+        }
+
+        .quote-display {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            margin-top: 18px;
+            display: inline-block;
+            font-style: italic;
+            font-weight: 400;
+            max-width: 80%;
+        }
+
+        .date-display {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            margin-top: 18px;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 25px;
+            background: var(--light);
+            border-bottom: 1px solid var(--light-gray);
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Roboto', sans-serif;
+            position: relative;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 18px rgba(76, 175, 80, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border: 3px solid transparent;
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            right: 18px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: #66BB6A;
+            box-shadow: 0 5px 18px rgba(129, 199, 132, 0.25);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        .btn-accent:hover {
+            background: #9CCC65;
+            box-shadow: 0 5px 18px rgba(174, 213, 129, 0.25);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #4CAF50;
+            box-shadow: 0 5px 18px rgba(102, 187, 106, 0.25);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #E53935;
+            box-shadow: 0 5px 18px rgba(239, 83, 80, 0.25);
+        }
+
+        .editor-container {
+            padding: 0;
+            position: relative;
+            display: flex;
+            min-height: 550px;
+        }
+
+        .entries-sidebar {
+            width: 280px;
+            background: var(--light);
+            border-right: 1px solid var(--light-gray);
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .entries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .entries-search {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 18px 12px 40px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .entries-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .entry-item {
+            padding: 15px;
+            background: white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .entry-item:hover {
+            transform: translateX(8px);
+            box-shadow: var(--shadow);
+        }
+
+        .entry-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .entry-item.active .entry-date,
+        .entry-item.active .entry-preview,
+        .entry-item.active .entry-mood {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .entry-date {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .entry-preview {
+            font-size: 0.9rem;
+            color: var(--gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 30px;
+        }
+
+        .entry-mood {
+            font-size: 1.5rem;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .empty-entries {
+            text-align: center;
+            padding: 25px;
+            color: var(--gray);
+        }
+
+        .empty-entries i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .editor-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            gap: 12px;
+            padding: 18px 25px;
+            background: var(--light);
+            border-bottom: 1px solid var(--light-gray);
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            padding: 10px 15px;
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .tool-btn:hover {
+            background: var(--light);
+            transform: translateY(-3px);
+        }
+
+        .tool-btn:active {
+            transform: translateY(0);
+        }
+
+        .tool-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        #journal-editor {
+            width: 100%;
+            flex: 1;
+            padding: 35px;
+            border: none;
+            resize: none;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: var(--dark);
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ1IDc5LjE2MzQ5OSwgMjAxOC8w8LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHg6eG1wTU09JGh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE4IChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjZEQTMzOEI1NUVBNjExRUFBQjM0RUYzNjZEQTMxRDIzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjZEQTMzOEI2NUVBNjExRUFBQjM0RUYzNjZEQTMxRDIzIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NkRBMzM4QjM1RUE2MTFFQUFCMzRFRjM2NkRBMzFEMjMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NkRBMzM4QjQ1RUE2MTFFQUFCMzRFRjM2NkRBMzFEMjMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDwveHBhY2tldCBlbmQ9InIiPz6dFcRhAAAAWklEQVR42mJkZGRkYGRkZMACwNDS0tL/IfWMFOgzUaCDiUodjFTqYKRSByOVOhip1MFIpQ5GKnUwUqmDkUodjFTqYKRSByOVOhip1MFIpQ5GKnUwUqmDkUodDAAEGACfmBlVZ5XpIwAAAABJRU5ErkJggg==');
+        }
+
+        #journal-editor:focus {
+            outline: none;
+            box-shadow: inset 0 0 0 3px var(--primary);
+        }
+
+        .editor-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 25px;
+            background: var(--light);
+            border-top: 1px solid var(--light-gray);
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .status-dot.saving {
+            background: var(--warning);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            padding: 18px 25px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left: 5px solid var(--success);
+        }
+
+        .toast-error {
+            border-left: 5px solid var(--danger);
+        }
+
+        .toast-icon {
+            font-size: 1.4rem;
+        }
+
+        .toast-success .toast-icon {
+            color: var(--success);
+        }
+
+        .toast-error .toast-icon {
+            color: var(--danger);
+        }
+
+        /* Mood selector modal */
+        .mood-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .mood-modal.show {
+            display: flex;
+        }
+
+        .mood-content {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .mood-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .mood-btn {
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mood-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* Estadísticas */
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-box {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--radius);
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Responsividad */
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            
+            .entries-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--light-gray);
+                max-height: 220px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Modo oscuro */
+        .dark-mode-toggle {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(255, 255, 255, 0.25);
+            border: none;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.4rem;
+            transition: var(--transition);
+            z-index: 2;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: rotate(45deg);
+        }
+
+        body.dark-theme {
+            background: linear-gradient(145deg, #263238 0%, #1b2932 100%);
+            color: var(--light);
+        }
+
+        body.dark-theme .container {
+            background: #37474F;
+        }
+
+        body.dark-theme .entries-sidebar,
+        body.dark-theme .editor-toolbar,
+        body.dark-theme .editor-footer,
+        body.dark-theme .controls {
+            background: #455A64;
+            border-color: #546E7A;
+        }
+
+        body.dark-theme #journal-editor {
+            background-color: #37474F;
+            color: var(--light);
+        }
+
+        body.dark-theme .entry-item {
+            background: #455A64;
+        }
+
+        body.dark-theme .search-input,
+        body.dark-theme .tool-btn {
+            background: #37474F;
+            border-color: #546E7A;
+            color: var(--light);
+        }
+
+        body.dark-theme .tool-btn:hover {
+            background: #546E7A;
+        }
+
+        body.dark-theme .toast {
+            background: #455A64;
+            color: var(--light);
+        }
+
+        body.dark-theme .mood-content {
+            background: #455A64;
+            color: var(--light);
+        }
+
+        body.dark-theme .stat-box {
+            background: #455A64;
+        }
+
+        /* Animaciones adicionales */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* Mejoras de scrollbar */
+        .entries-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .entries-list::-webkit-scrollbar-track {
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        .entries-list::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 10px;
+        }
+
+        .entries-list::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+        <a href="../index.html" class="back-button"><i class="fas fa-arrow-left"></i></a>
+        <div class="container">
+        <header>
+            <button class="dark-mode-toggle" id="dark-mode-toggle" aria-label="Alternar modo oscuro">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="logo">
+                <i class="fas fa-leaf logo-icon"></i>
+                <h1>Darey</h1>
+            </div>
+            <p class="app-description">Tu refugio para pensamientos zen y reflexiones diarias</p>
+            <div class="quote-display" id="daily-quote">Cargando cita inspiradora...</div>
+            <div class="date-display" id="current-date">Cargando fecha...</div>
+        </header>
+
+        <div class="controls">
+            <button class="btn" id="new-entry-btn">
+                <i class="fas fa-plus"></i> Nueva Entrada
+            </button>
+            <div>
+                <button class="btn btn-secondary" id="save-btn">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <button class="btn btn-accent" id="export-txt-btn">
+                    <i class="fas fa-file-alt"></i> Exportar TXT
+                </button>
+                <button class="btn btn-accent" id="export-pdf-btn">
+                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                </button>
+                <button class="btn btn-accent" id="stats-btn">
+                    <i class="fas fa-chart-pie"></i> Estadísticas
+                </button>
+            </div>
+        </div>
+
+        <div class="editor-container">
+            <div class="entries-sidebar">
+                <div class="entries-header">
+                    <h2>Mis Reflexiones</h2>
+                    <button class="btn btn-accent" id="toggle-search">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="entries-search" id="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-input" placeholder="Buscar en reflexiones...">
+                </div>
+                <div class="entries-list" id="entries-list">
+                    <div class="empty-entries">
+                        <i class="fas fa-leaf"></i>
+                        <p>No hay reflexiones guardadas</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="editor-main">
+                <div class="editor-toolbar">
+                    <button class="tool-btn" data-command="bold" title="Negrita">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="tool-btn" data-command="italic" title="Cursiva">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="tool-btn" data-command="underline" title="Subrayado">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                    <div style="width: 1px; background: var(--light-gray); margin: 0 6px;"></div>
+                    <button class="tool-btn" data-command="insertUnorderedList" title="Lista con viñetas">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="tool-btn" data-command="insertOrderedList" title="Lista numerada">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <div style="width: 1px; background: var(--light-gray); margin: 0 6px;"></div>
+                    <button class="tool-btn" data-command="outdent" title="Disminuir sangría">
+                        <i class="fas fa-outdent"></i>
+                    </button>
+                    <button class="tool-btn" data-command="indent" title="Aumentar sangría">
+                        <i class="fas fa-indent"></i>
+                    </button>
+                    <div style="width: 1px; background: var(--light-gray); margin: 0 6px;"></div>
+                    <button class="tool-btn" id="insert-image" title="Insertar imagen">
+                        <i class="fas fa-image"></i>
+                    </button>
+                </div>
+                <div id="journal-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Editor de reflexiones"></div>
+                <div class="editor-footer">
+                    <div class="status-indicator">
+                        <div class="status-dot" id="status-dot"></div>
+                        <span id="status-text">Guardado</span>
+                    </div>
+                    <div id="word-character-count">0 palabras | 0 caracteres</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <div class="mood-modal" id="mood-modal">
+        <div class="mood-content">
+            <h2>¿Cómo te sientes hoy?</h2>
+            <p>Selecciona un estado de ánimo para tu nueva reflexión</p>
+            <div class="mood-options">
+                <span class="mood-btn" data-mood="😊" title="Feliz">😊</span>
+                <span class="mood-btn" data-mood="😢" title="Triste">😢</span>
+                <span class="mood-btn" data-mood="😡" title="Enojado">😡</span>
+                <span class="mood-btn" data-mood="😌" title="Tranquilo">😌</span>
+                <span class="mood-btn" data-mood="🤔" title="Pensativo">🤔</span>
+                <span class="mood-btn" data-mood="😴" title="Cansado">😴</span>
+            </div>
+            <div class="stats-container" id="mood-stats">
+                <!-- Las estadísticas de ánimo se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referencias a elementos del DOM
+            const journalEditor = document.getElementById('journal-editor');
+            const newEntryBtn = document.getElementById('new-entry-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const exportTxtBtn = document.getElementById('export-txt-btn');
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
+            const statsBtn = document.getElementById('stats-btn');
+            const currentDateEl = document.getElementById('current-date');
+            const dailyQuoteEl = document.getElementById('daily-quote');
+            const entriesList = document.getElementById('entries-list');
+            const searchInput = document.getElementById('search-input');
+            const searchContainer = document.getElementById('search-container');
+            const toggleSearchBtn = document.getElementById('toggle-search');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const wordCharacterCount = document.getElementById('word-character-count');
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const toolBtns = document.querySelectorAll('.tool-btn');
+            const moodModal = document.getElementById('mood-modal');
+            const moodBtns = document.querySelectorAll('.mood-btn');
+            const moodStats = document.getElementById('mood-stats');
+            const insertImageBtn = document.getElementById('insert-image');
+            
+            // Variables de estado
+            let currentEntryId = null;
+            let currentMood = '';
+            let autoSaveTimer = null;
+            let isDarkMode = localStorage.getItem('darkMode') === 'true';
+            const quotes = [
+                "La paz viene de dentro; no la busques fuera. - Buda",
+                "El presente es el único momento que existe. - Eckhart Tolle",
+                "La simplicidad es la clave de la verdadera elegancia. - Coco Chanel",
+                "Sé el cambio que quieres ver en el mundo. - Mahatma Gandhi",
+                "La vida es lo que sucede mientras estás ocupado haciendo otros planes. - John Lennon",
+                "El secreto de la felicidad no es hacer siempre lo que se quiere, sino querer siempre lo que se hace. - León Tolstói",
+                "Cuida el presente, porque en él vivirás el resto de tu vida. - Anónimo",
+                "La naturaleza no se apresura, sin embargo, todo se logra. - Lao Tzu"
+            ];
+            
+            // Inicializar la aplicación
+            function init() {
+                updateDateDisplay();
+                displayRandomQuote();
+                loadEntries();
+                setupEventListeners();
+                createNewEntry();
+                updateWordCharacterCount();
+                
+                // Aplicar modo oscuro si estaba activado
+                if (isDarkMode) {
+                    document.body.classList.add('dark-theme');
+                    darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+                
+                // Ocultar inicialmente la búsqueda en móviles
+                if (window.innerWidth <= 768) {
+                    searchContainer.style.display = 'none';
+                }
+            }
+            
+            // Configurar event listeners
+            function setupEventListeners() {
+                newEntryBtn.addEventListener('click', showMoodModal);
+                saveBtn.addEventListener('click', saveEntry);
+                exportTxtBtn.addEventListener('click', exportToTxt);
+                exportPdfBtn.addEventListener('click', exportToPdf);
+                statsBtn.addEventListener('click', showStats);
+                journalEditor.addEventListener('input', onEditorInput);
+                searchInput.addEventListener('input', filterEntries);
+                toggleSearchBtn.addEventListener('click', toggleSearch);
+                darkModeToggle.addEventListener('click', toggleDarkMode);
+                
+                // Event listeners para los botones de formato
+                toolBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const command = btn.dataset.command;
+                        document.execCommand(command, false, null);
+                        journalEditor.focus();
+                    });
+                });
+                
+                // Insertar imagen
+                insertImageBtn.addEventListener('click', insertImage);
+                
+                // Guardar cuando se pierde el foco del editor
+                journalEditor.addEventListener('blur', () => {
+                    if (currentEntryId) {
+                        saveEntry();
+                    }
+                });
+                
+                // Guardar con Ctrl+S
+                document.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                        e.preventDefault();
+                        saveEntry();
+                    }
+                });
+
+                // Mood buttons
+                moodBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        currentMood = e.target.dataset.mood;
+                        moodModal.classList.remove('show');
+                        createNewEntry();
+                    });
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                moodModal.addEventListener('click', (e) => {
+                    if (e.target === moodModal) {
+                        moodModal.classList.remove('show');
+                    }
+                });
+            }
+            
+            // Mostrar modal de mood
+            function showMoodModal() {
+                loadMoodStats();
+                moodModal.classList.add('show');
+            }
+            
+            // Cargar estadísticas de ánimo
+            function loadMoodStats() {
+                const entries = getEntriesFromStorage();
+                const moodCounts = {};
+                
+                entries.forEach(entry => {
+                    if (entry.mood) {
+                        moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+                    }
+                });
+                
+                if (Object.keys(moodCounts).length > 0) {
+                    let statsHTML = '<h3>Tus estados de ánimo</h3><div class="stats-container">';
+                    
+                    for (const mood in moodCounts) {
+                        statsHTML += `
+                            <div class="stat-box">
+                                <div class="stat-value">${moodCounts[mood]}</div>
+                                <div class="stat-label">${mood}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    statsHTML += '</div>';
+                    moodStats.innerHTML = statsHTML;
+                } else {
+                    moodStats.innerHTML = '<p>Comienza a registrar tus emociones</p>';
+                }
+            }
+            
+            // Mostrar estadísticas generales
+            function showStats() {
+                const entries = getEntriesFromStorage();
+                const totalEntries = entries.length;
+                
+                if (totalEntries === 0) {
+                    showToast('No hay suficientes datos para mostrar estadísticas', 'error');
+                    return;
+                }
+                
+                // Calcular estadísticas
+                const totalWords = entries.reduce((acc, entry) => {
+                    return acc + (entry.content ? entry.content.split(/\s+/).length : 0);
+                }, 0);
+                
+                const avgWords = Math.round(totalWords / totalEntries);
+                
+                const today = new Date();
+                const lastWeekEntries = entries.filter(entry => {
+                    const entryDate = new Date(parseInt(entry.date));
+                    const diffTime = Math.abs(today - entryDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    return diffDays <= 7;
+                }).length;
+                
+                // Crear modal de estadísticas
+                const statsModal = document.createElement('div');
+                statsModal.className = 'mood-modal show';
+                statsModal.innerHTML = `
+                    <div class="mood-content">
+                        <h2>Tus Estadísticas de Reflexión</h2>
+                        <div class="stats-container">
+                            <div class="stat-box">
+                                <div class="stat-value">${totalEntries}</div>
+                                <div class="stat-label">Reflexiones</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">${totalWords}</div>
+                                <div class="stat-label">Palabras</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">${avgWords}</div>
+                                <div class="stat-label">Promedio por entrada</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">${lastWeekEntries}</div>
+                                <div class="stat-label">Esta semana</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-accent" style="margin-top: 20px;" id="close-stats">Cerrar</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(statsModal);
+                
+                // Cerrar modal
+                statsModal.querySelector('#close-stats').addEventListener('click', () => {
+                    document.body.removeChild(statsModal);
+                });
+                
+                statsModal.addEventListener('click', (e) => {
+                    if (e.target === statsModal) {
+                        document.body.removeChild(statsModal);
+                    }
+                });
+            }
+            
+            // Insertar imagen
+            function insertImage() {
+                const url = prompt('Introduce la URL de la imagen:');
+                if (url) {
+                    document.execCommand('insertImage', false, url);
+                }
+            }
+            
+            // Actualizar la visualización de la fecha
+            function updateDateDisplay() {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                currentDateEl.textContent = now.toLocaleDateString('es-ES', options);
+            }
+            
+            // Mostrar cita aleatoria
+            function displayRandomQuote() {
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                dailyQuoteEl.textContent = quotes[randomIndex];
+            }
+            
+            // Crear una nueva entrada
+            function createNewEntry() {
+                if (!currentMood) {
+                    showToast('Selecciona un estado de ánimo primero', 'error');
+                    return;
+                }
+                
+                const timestamp = Date.now();
+                currentEntryId = `entry-${timestamp}`;
+                
+                journalEditor.innerHTML = '';
+                journalEditor.focus();
+                
+                updateStatus('listo');
+                
+                // Crear objeto para la nueva entrada
+                const newEntry = {
+                    id: currentEntryId,
+                    date: timestamp,
+                    content: '',
+                    preview: 'Nueva reflexión...',
+                    mood: currentMood
+                };
+                
+                // Guardar en localStorage
+                saveEntryToStorage(newEntry);
+                
+                // Actualizar la lista de entradas
+                loadEntries();
+                
+                showToast('Nueva reflexión creada', 'success');
+                currentMood = ''; // Reset mood after creation
+            }
+            
+            // Manejar la entrada de texto en el editor
+            function onEditorInput() {
+                updateWordCharacterCount();
+                updateStatus('editando');
+                
+                // Configurar autoguardado después de 2 segundos de inactividad
+                clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(() => {
+                    if (currentEntryId) {
+                        saveEntry();
+                    }
+                }, 2000);
+            }
+            
+            // Actualizar el contador de palabras y caracteres
+            function updateWordCharacterCount() {
+                const text = journalEditor.innerText || '';
+                const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+                const charCount = text.length;
+                wordCharacterCount.textContent = `${wordCount} palabras | ${charCount} caracteres`;
+            }
+            
+            // Actualizar el estado (guardado/editando)
+            function updateStatus(status) {
+                if (status === 'guardado') {
+                    statusDot.style.background = 'var(--success)';
+                    statusDot.classList.remove('saving');
+                    statusText.textContent = 'Guardado';
+                } else if (status === 'editando') {
+                    statusDot.style.background = 'var(--warning)';
+                    statusDot.classList.add('saving');
+                    statusText.textContent = 'Editando...';
+                } else if (status === 'listo') {
+                    statusDot.style.background = 'var(--success)';
+                    statusDot.classList.remove('saving');
+                    statusText.textContent = 'Listo';
+                }
+            }
+            
+            // Guardar la entrada actual
+            function saveEntry() {
+                if (!currentEntryId) return;
+                
+                updateStatus('guardando');
+                
+                const content = journalEditor.innerHTML;
+                const textContent = journalEditor.innerText || '';
+                const preview = textContent.substring(0, 50) + (textContent.length > 50 ? '...' : '');
+                
+                const entry = {
+                    id: currentEntryId,
+                    date: currentEntryId.split('-')[1],
+                    content: content,
+                    preview: preview || 'Reflexión sin texto...',
+                    mood: getEntryFromStorage(currentEntryId).mood // Preserve mood
+                };
+                
+                saveEntryToStorage(entry);
+                updateStatus('guardado');
+                
+                // Actualizar la lista de entradas
+                loadEntries();
+                
+                showToast('Reflexión guardada', 'success');
+            }
+            
+            // Guardar entrada en localStorage
+            function saveEntryToStorage(entry) {
+                const entries = getEntriesFromStorage();
+                const existingIndex = entries.findIndex(e => e.id === entry.id);
+                
+                if (existingIndex !== -1) {
+                    entries[existingIndex] = entry;
+                } else {
+                    entries.push(entry);
+                }
+                
+                localStorage.setItem('zenJournalEntries', JSON.stringify(entries));
+            }
+            
+            // Obtener entradas desde localStorage
+            function getEntriesFromStorage() {
+                const entriesJSON = localStorage.getItem('zenJournalEntries');
+                return entriesJSON ? JSON.parse(entriesJSON) : [];
+            }
+            
+            // Obtener una entrada específica desde storage
+            function getEntryFromStorage(id) {
+                const entries = getEntriesFromStorage();
+                return entries.find(e => e.id === id) || {};
+            }
+            
+            // Cargar la lista de entradas
+            function loadEntries() {
+                const entries = getEntriesFromStorage();
+                entriesList.innerHTML = '';
+                
+                if (entries.length === 0) {
+                    entriesList.innerHTML = `
+                        <div class="empty-entries">
+                            <i class="fas fa-leaf"></i>
+                            <p>No hay reflexiones guardadas</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Ordenar entradas por fecha (más recientes primero)
+                entries.sort((a, b) => b.date - a.date);
+                
+                entries.forEach(entry => {
+                    const entryDate = new Date(parseInt(entry.date));
+                    const formattedDate = entryDate.toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+                    
+                    const entryEl = document.createElement('div');
+                    entryEl.className = 'entry-item fade-in';
+                    if (entry.id === currentEntryId) {
+                        entryEl.classList.add('active');
+                    }
+                    
+                    entryEl.innerHTML = `
+                        <div class="entry-date">${formattedDate}</div>
+                        <div class="entry-preview">${entry.preview}</div>
+                        <div class="entry-mood">${entry.mood}</div>
+                        <button class="btn btn-danger btn-small delete-btn" style="position: absolute; top: 10px; right: 50px; padding: 5px 10px; font-size: 0.8rem;"><i class="fas fa-trash"></i></button>
+                    `;
+                    
+                    entryEl.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteEntry(entry.id);
+                    });
+                    
+                    entryEl.addEventListener('click', () => {
+                        loadEntry(entry);
+                    });
+                    
+                    entriesList.appendChild(entryEl);
+                });
+            }
+            
+            // Eliminar una entrada
+            function deleteEntry(id) {
+                if (!confirm('¿Estás seguro de que quieres eliminar esta reflexión?')) {
+                    return;
+                }
+                
+                let entries = getEntriesFromStorage();
+                entries = entries.filter(e => e.id !== id);
+                localStorage.setItem('zenJournalEntries', JSON.stringify(entries));
+                
+                if (currentEntryId === id) {
+                    currentEntryId = null;
+                    journalEditor.innerHTML = '';
+                    updateWordCharacterCount();
+                    updateStatus('listo');
+                }
+                
+                loadEntries();
+                showToast('Reflexión eliminada', 'success');
+            }
+            
+            // Cargar una entrada específica
+            function loadEntry(entry) {
+                currentEntryId = entry.id;
+                journalEditor.innerHTML = entry.content;
+                
+                // Actualizar elementos activos en la lista
+                document.querySelectorAll('.entry-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                const entryElement = Array.from(document.querySelectorAll('.entry-item')).find(
+                    el => el.querySelector('.entry-date').textContent === 
+                        new Date(parseInt(entry.date)).toLocaleDateString('es-ES', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        })
+                );
+                
+                if (entryElement) {
+                    entryElement.classList.add('active');
+                }
+                
+                updateWordCharacterCount();
+                updateStatus('guardado');
+                
+                showToast('Reflexión cargada', 'success');
+            }
+            
+            // Filtrar entradas según la búsqueda (ahora busca en contenido completo)
+            function filterEntries() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const entries = getEntriesFromStorage();
+                
+                entriesList.innerHTML = '';
+                
+                const filteredEntries = entries.filter(entry => {
+                    const text = (entry.content + entry.preview).toLowerCase();
+                    return text.includes(searchTerm);
+                });
+                
+                if (filteredEntries.length === 0) {
+                    entriesList.innerHTML = `
+                        <div class="empty-entries">
+                            <i class="fas fa-search"></i>
+                            <p>No se encontraron reflexiones</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                filteredEntries.sort((a, b) => b.date - a.date);
+                
+                filteredEntries.forEach(entry => {
+                    const entryDate = new Date(parseInt(entry.date));
+                    const formattedDate = entryDate.toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+                    
+                    const entryEl = document.createElement('div');
+                    entryEl.className = 'entry-item';
+                    if (entry.id === currentEntryId) {
+                        entryEl.classList.add('active');
+                    }
+                    
+                    entryEl.innerHTML = `
+                        <div class="entry-date">${formattedDate}</div>
+                        <div class="entry-preview">${entry.preview}</div>
+                        <div class="entry-mood">${entry.mood}</div>
+                        <button class="btn btn-danger btn-small delete-btn" style="position: absolute; top: 10px; right: 50px; padding: 5px 10px; font-size: 0.8rem;"><i class="fas fa-trash"></i></button>
+                    `;
+                    
+                    entryEl.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteEntry(entry.id);
+                    });
+                    
+                    entryEl.addEventListener('click', () => {
+                        loadEntry(entry);
+                    });
+                    
+                    entriesList.appendChild(entryEl);
+                });
+            }
+            
+            // Alternar visibilidad de la búsqueda (especialmente para móviles)
+            function toggleSearch() {
+                if (searchContainer.style.display === 'none') {
+                    searchContainer.style.display = 'block';
+                    searchInput.focus();
+                } else {
+                    searchContainer.style.display = 'none';
+                    searchInput.value = '';
+                    loadEntries(); // Reset to all entries
+                }
+            }
+            
+            // Exportar a texto
+            function exportToTxt() {
+                if (!currentEntryId) return;
+                
+                const content = journalEditor.innerText;
+                const date = new Date(parseInt(currentEntryId.split('-')[1]));
+                const filename = `reflexion-${date.toISOString().split('T')[0]}.txt`;
+                
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+                
+                showToast('Exportado como TXT', 'success');
+            }
+            
+            // Exportar a PDF (implementación completa)
+            function exportToPdf() {
+                if (!currentEntryId) return;
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const content = journalEditor.innerText;
+                const entry = getEntryFromStorage(currentEntryId);
+                const date = new Date(parseInt(entry.date));
+                const formattedDate = date.toLocaleDateString('es-ES');
+                const mood = entry.mood;
+                
+                // Configuración del PDF
+                doc.setFontSize(16);
+                doc.setTextColor(76, 175, 80); // Verde primario
+                doc.text(`Reflexión Zen - ${formattedDate} ${mood}`, 105, 15, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0); // Negro
+                
+                // Dividir el texto en líneas para el PDF
+                const splitText = doc.splitTextToSize(content, 180);
+                doc.text(splitText, 15, 30);
+                
+                // Pie de página
+                doc.setFontSize(10);
+                doc.setTextColor(150, 150, 150);
+                doc.text('Creado con Darey - Tu refugio personal', 105, 280, { align: 'center' });
+                
+                doc.save(`reflexion-${date.toISOString().split('T')[0]}.pdf`);
+                
+                showToast('Exportado como PDF', 'success');
+            }
+            
+            // Mostrar notificación toast
+            function showToast(message, type) {
+                const toastContainer = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                
+                toast.innerHTML = `
+                    <div class="toast-icon">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    </div>
+                    <div class="toast-message">${message}</div>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Mostrar toast
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+                
+                // Ocultar y eliminar después de 3 segundos
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toastContainer.removeChild(toast);
+                    }, 400);
+                }, 3000);
+            }
+            
+            // Alternar modo oscuro
+            function toggleDarkMode() {
+                isDarkMode = !isDarkMode;
+                document.body.classList.toggle('dark-theme');
+                
+                if (isDarkMode) {
+                    darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                } else {
+                    darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                }
+                
+                localStorage.setItem('darkMode', isDarkMode);
+            }
+            
+            // Inicializar la aplicación
+            init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mente Sana - Juegos de Inteligencia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #5e72e4;
+            --color-secondary: #7795f8;
+            --color-accent: #f5365c;
+            --color-success: #2dce89;
+            --color-warning: #fb6340;
+            --color-info: #11cdef;
+            --color-dark: #212529;
+            --color-light: #f8f9fe;
+            --color-background: #f7fafc;
+            --color-card: #ffffff;
+            --color-text: #525f7f;
+            --color-border: #e9ecef;
+        }
+
+        .dark-mode {
+            --color-primary: #6772e5;
+            --color-secondary: #7b86eb;
+            --color-background: #1a2035;
+            --color-card: #222b45;
+            --color-text: #c5cee0;
+            --color-border: #2d3a5a;
+            --color-light: #2d3a5a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: var(--color-primary);
+            text-decoration: none;
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: var(--color-primary);
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .theme-switch {
+            background: var(--color-card);
+            border-radius: 50px;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+        }
+
+        .theme-switch i {
+            font-size: 18px;
+            color: var(--color-primary);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: var(--color-card);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-text);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button.active {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .tab-button i {
+            font-size: 18px;
+        }
+
+        .game-container {
+            background: var(--color-card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.07);
+            margin-bottom: 30px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .game {
+            display: none;
+        }
+
+        .game.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Estilos para Sudoku - CORREGIDOS */
+        .sudoku-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 0;
+            border: 3px solid var(--color-dark);
+            border-radius: 5px;
+            overflow: hidden;
+            background: var(--color-dark);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .sudoku-cell {
+            aspect-ratio: 1;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            outline: none;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .sudoku-cell:focus {
+            background-color: var(--color-light);
+            box-shadow: inset 0 0 0 2px var(--color-primary);
+        }
+
+        .sudoku-cell.fixed {
+            background-color: var(--color-light);
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .sudoku-cell.incorrect {
+            color: var(--color-accent);
+        }
+
+        /* Bordes más gruesos para los bloques 3x3 */
+        .sudoku-cell:nth-child(3n) {
+            border-right: 2px solid var(--color-dark);
+        }
+
+        .sudoku-row:nth-child(3n) .sudoku-cell {
+            border-bottom: 2px solid var(--color-dark);
+        }
+
+        .sudoku-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--color-light);
+            color: var(--color-text);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sudoku-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .stat {
+            background: var(--color-light);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        /* Estilos para Memorama */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .memory-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card.flipped .memory-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-front, .memory-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .memory-front {
+            background: var(--color-primary);
+            color: white;
+            font-size: 32px;
+            transform: rotateY(180deg);
+        }
+
+        .memory-back {
+            background: var(--color-secondary);
+            color: white;
+            font-size: 28px;
+        }
+
+        .memory-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        /* Estilos para Rompecabezas */
+        .puzzle-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .image-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            background: var(--color-card);
+            color: var(--color-text);
+        }
+
+        .puzzle-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--color-light);
+        }
+
+        .puzzle-piece {
+            position: absolute;
+            background-size: 400px 400px;
+            border: 1px solid white;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(1.02);
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .puzzle-piece.empty {
+            opacity: 0;
+            cursor: default;
+        }
+
+        .puzzle-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        .completed-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--color-success);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Animaciones de celebración */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--color-primary);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes celebrate {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .celebrate .puzzle-piece {
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tabs {
+                justify-content: center;
+            }
+            
+            .sudoku-grid {
+                max-width: 350px;
+            }
+            
+            .sudoku-cell {
+                font-size: 18px;
+            }
+            
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 330px;
+            }
+            
+            .puzzle-container {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .sudoku-controls, .sudoku-stats, .memory-stats, .puzzle-stats {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--color-text);
+            font-size: 14px;
+            border-top: 1px solid var(--color-border);
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <h1>Mente Sana</h1>
+            </div>
+            <div class="theme-switch" id="theme-switch">
+                <i class="fas fa-moon"></i>
+            </div>
+            <a href="../index.html" class="back-button"><i class="fas fa-arrow-left"></i> Volver</a>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-game="sudoku">
+                <i class="fas fa-grid"></i> Sudoku
+            </button>
+            <button class="tab-button" data-game="memory">
+                <i class="fas fa-clone"></i> Memorama
+            </button>
+            <button class="tab-button" data-game="puzzle">
+                <i class="fas fa-puzzle-piece"></i> Rompecabezas
+            </button>
+        </div>
+
+        <div class="game-container">
+            <!-- Juego de Sudoku -->
+            <div id="sudoku" class="game active">
+                <div class="game-header">
+                    <h2 class="game-title">Sudoku Relajante</h2>
+                    <div class="game-difficulty">
+                        <select id="sudoku-difficulty" class="url-input">
+                            <option value="easy">Fácil</option>
+                            <option value="medium">Medio</option>
+                            <option value="hard">Difícil</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="sudoku-container">
+                    <div class="sudoku-grid" id="sudoku-grid"></div>
+                </div>
+                
+                <div class="sudoku-controls">
+                    <button class="btn btn-primary" id="new-sudoku">
+                        <i class="fas fa-plus"></i> Nuevo Juego
+                    </button>
+                    <button class="btn btn-secondary" id="check-sudoku">
+                        <i class="fas fa-check"></i> Verificar
+                    </button>
+                    <button class="btn btn-success" id="solve-sudoku">
+                        <i class="fas fa-lightbulb"></i> Resolver
+                    </button>
+                </div>
+                
+                <div class="sudoku-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="sudoku-time">0</div>
+                        <div class="stat-label">Segundos</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="sudoku-errors">0</div>
+                        <div class="stat-label">Errores</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Juego de Memorama -->
+            <div id="memory" class="game">
+                <div class="game-header">
+                    <h2 class="game-title">Memorama de Naturaleza</h2>
+                </div>
+                
+                <div class="memory-grid" id="memory-grid"></div>
+                
+                <div class="sudoku-controls">
+                    <button class="btn btn-primary" id="new-memory">
+                        <i class="fas fa-plus"></i> Nuevo Juego
+                    </button>
+                </div>
+                
+                <div class="memory-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="memory-moves">0</div>
+                        <div class="stat-label">Movimientos</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="memory-pairs">0</div>
+                        <div class="stat-label">Pares Encontrados</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Juego de Rompecabezas -->
+            <div id="puzzle" class="game">
+                <div class="game-header">
+                    <h2 class="game-title">Rompecabezas Deslizante</h2>
+                </div>
+                
+                <div class="puzzle-controls">
+                    <div class="image-input">
+                        <input type="text" id="puzzle-image-url" class="url-input" placeholder="Pega la URL de una imagen" value="https://images.unsplash.com/photo-1506744038136-46273834b3fb">
+                        <button class="btn btn-primary" id="load-image">
+                            <i class="fas fa-download"></i> Cargar
+                        </button>
+                    </div>
+                    
+                    <div class="sudoku-controls">
+                        <button class="btn btn-primary" id="new-puzzle">
+                            <i class="fas fa-plus"></i> Nuevo Juego
+                        </button>
+                        <button class="btn btn-secondary" id="shuffle-puzzle">
+                            <i class="fas fa-random"></i> Mezclar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="puzzle-container" id="puzzle-container"></div>
+                
+                <div class="puzzle-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="puzzle-moves">0</div>
+                        <div class="stat-label">Movimientos</div>
+                    </div>
+                </div>
+                
+                <div id="puzzle-completed" class="completed-message">
+                    <i class="fas fa-trophy"></i> ¡Felicidades! Has completado el rompecabezas.
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Juegos diseñados para mejorar tu inteligencia y reducir el estrés</p>
+            <p>Progreso guardado automáticamente en tu navegador</p>
+        </footer>
+    </div>
+
+    <script>
+        // Gestión de tema claro/oscuro
+        const themeSwitch = document.getElementById('theme-switch');
+        const themeIcon = themeSwitch.querySelector('i');
+        
+        themeSwitch.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        });
+
+        // Gestión de pestañas
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Desactivar todas las pestañas y juegos
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.game').forEach(game => game.classList.remove('active'));
+                
+                // Activar la pestaña y juego seleccionados
+                button.classList.add('active');
+                const gameId = button.getAttribute('data-game');
+                document.getElementById(gameId).classList.add('active');
+            });
+        });
+
+        // Almacenamiento local
+        const storage = {
+            save: function(key, data) {
+                localStorage.setItem(key, JSON.stringify(data));
+            },
+            load: function(key) {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : null;
+            }
+        };
+
+        // Temporizador genérico
+        class Timer {
+            constructor() {
+                this.startTime = 0;
+                this.elapsedTime = 0;
+                this.timerInterval = null;
+            }
+            
+            start() {
+                this.startTime = Date.now() - this.elapsedTime;
+                this.timerInterval = setInterval(() => {
+                    this.elapsedTime = Date.now() - this.startTime;
+                    this.updateDisplay();
+                }, 1000);
+            }
+            
+            pause() {
+                clearInterval(this.timerInterval);
+            }
+            
+            reset() {
+                clearInterval(this.timerInterval);
+                this.elapsedTime = 0;
+                this.updateDisplay();
+            }
+            
+            updateDisplay() {
+                // Debe ser implementado por cada juego
+            }
+        }
+
+        // Juego de Sudoku - CORREGIDO
+        const sudokuGame = {
+            timer: new Timer(),
+            errors: 0,
+            grid: [],
+            solution: [],
+            
+            init: function() {
+                this.loadProgress();
+                this.timer.updateDisplay = () => {
+                    document.getElementById('sudoku-time').textContent = Math.floor(this.timer.elapsedTime / 1000);
+                };
+                
+                document.getElementById('new-sudoku').addEventListener('click', () => this.newGame());
+                document.getElementById('check-sudoku').addEventListener('click', () => this.checkSolution());
+                document.getElementById('solve-sudoku').addEventListener('click', () => this.solve());
+                
+                if (this.grid.length === 0) {
+                    this.newGame();
+                } else {
+                    this.renderGrid();
+                    this.timer.start();
+                }
+            },
+            
+            newGame: function() {
+                // En una implementación real, se generaría o cargaría un tablero de sudoku
+                // Para este ejemplo, usaremos un tablero predefinido
+                this.grid = [
+                    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+                    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+                    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+                    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+                    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+                    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+                    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+                    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+                    [0, 0, 0, 0, 8, 0, 0, 7, 9]
+                ];
+                
+                this.solution = [
+                    [5, 3, 4, 6, 7, 8, 9, 1, 2],
+                    [6, 7, 2, 1, 9, 5, 3, 4, 8],
+                    [1, 9, 8, 3, 4, 2, 5, 6, 7],
+                    [8, 5, 9, 7, 6, 1, 4, 2, 3],
+                    [4, 2, 6, 8, 5, 3, 7, 9, 1],
+                    [7, 1, 3, 9, 2, 4, 8, 5, 6],
+                    [9, 6, 1, 5, 3, 7, 2, 8, 4],
+                    [2, 8, 7, 4, 1, 9, 6, 3, 5],
+                    [3, 4, 5, 2, 8, 6, 1, 7, 9]
+                ];
+                
+                this.errors = 0;
+                document.getElementById('sudoku-errors').textContent = '0';
+                this.timer.reset();
+                this.renderGrid();
+                this.saveProgress();
+                this.timer.start();
+            },
+            
+            renderGrid: function() {
+                const gridElement = document.getElementById('sudoku-grid');
+                gridElement.innerHTML = '';
+                
+                // Crear las 9 filas del sudoku
+                for (let i = 0; i < 9; i++) {
+                    const row = document.createElement('div');
+                    row.className = 'sudoku-row';
+                    
+                    for (let j = 0; j < 9; j++) {
+                        const cell = document.createElement('input');
+                        cell.type = 'text';
+                        cell.className = 'sudoku-cell';
+                        cell.maxLength = 1;
+                        cell.value = this.grid[i][j] !== 0 ? this.grid[i][j] : '';
+                        
+                        if (this.grid[i][j] !== 0) {
+                            cell.classList.add('fixed');
+                            cell.readOnly = true;
+                        } else {
+                            cell.addEventListener('input', (e) => {
+                                const value = e.target.value.replace(/[^1-9]/g, '');
+                                e.target.value = value;
+                                this.grid[i][j] = value ? parseInt(value) : 0;
+                                this.saveProgress();
+                            });
+                        }
+                        
+                        row.appendChild(cell);
+                    }
+                    
+                    gridElement.appendChild(row);
+                }
+            },
+            
+            checkSolution: function() {
+                let hasErrors = false;
+                
+                const cells = document.querySelectorAll('.sudoku-cell:not(.fixed)');
+                cells.forEach((cell, index) => {
+                    const i = Math.floor(index / 9);
+                    const j = index % 9;
+                    
+                    if (this.grid[i][j] !== 0 && this.grid[i][j] !== this.solution[i][j]) {
+                        cell.classList.add('incorrect');
+                        hasErrors = true;
+                    } else {
+                        cell.classList.remove('incorrect');
+                    }
+                });
+                
+                if (hasErrors) {
+                    this.errors++;
+                    document.getElementById('sudoku-errors').textContent = this.errors;
+                }
+                
+                // Verificar si está completo y correcto
+                const isComplete = this.grid.flat().every(cell => cell !== 0);
+                const isCorrect = isComplete && this.grid.every((row, i) => 
+                    row.every((cell, j) => cell === this.solution[i][j])
+                );
+                
+                if (isCorrect) {
+                    this.timer.pause();
+                    alert('¡Felicidades! Has completado el sudoku correctamente.');
+                }
+                
+                return isCorrect;
+            },
+            
+            solve: function() {
+                this.grid = JSON.parse(JSON.stringify(this.solution));
+                this.renderGrid();
+                this.timer.pause();
+                this.saveProgress();
+            },
+            
+            saveProgress: function() {
+                const progress = {
+                    grid: this.grid,
+                    errors: this.errors,
+                    elapsedTime: this.timer.elapsedTime
+                };
+                
+                storage.save('sudokuProgress', progress);
+            },
+            
+            loadProgress: function() {
+                const progress = storage.load('sudokuProgress');
+                
+                if (progress) {
+                    this.grid = progress.grid;
+                    this.errors = progress.errors;
+                    this.timer.elapsedTime = progress.elapsedTime;
+                    document.getElementById('sudoku-errors').textContent = this.errors;
+                    document.getElementById('sudoku-time').textContent = Math.floor(this.timer.elapsedTime / 1000);
+                }
+            }
+        };
+
+        // Juego de Memorama
+        const memoryGame = {
+            cards: [],
+            flippedCards: [],
+            matchedPairs: 0,
+            moves: 0,
+            images: ['🌲', '🌊', '🌻', '🐦', '🦋', '🍄', '🌙', '⭐'],
+            
+            init: function() {
+                this.loadProgress();
+                document.getElementById('new-memory').addEventListener('click', () => this.newGame());
+                
+                if (this.cards.length === 0) {
+                    this.newGame();
+                } else {
+                    this.renderGrid();
+                }
+            },
+            
+            newGame: function() {
+                // Crear pares de cartas
+                let cardValues = [...this.images, ...this.images];
+                
+                // Mezclar las cartas
+                for (let i = cardValues.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [cardValues[i], cardValues[j]] = [cardValues[j], cardValues[i]];
+                }
+                
+                this.cards = cardValues.map(value => ({
+                    value,
+                    flipped: false,
+                    matched: false
+                }));
+                
+                this.flippedCards = [];
+                this.matchedPairs = 0;
+                this.moves = 0;
+                document.getElementById('memory-moves').textContent = '0';
+                document.getElementById('memory-pairs').textContent = '0';
+                this.renderGrid();
+                this.saveProgress();
+            },
+            
+            renderGrid: function() {
+                const gridElement = document.getElementById('memory-grid');
+                gridElement.innerHTML = '';
+                
+                this.cards.forEach((card, index) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'memory-card';
+                    if (card.flipped || card.matched) {
+                        cardElement.classList.add('flipped');
+                    }
+                    
+                    const inner = document.createElement('div');
+                    inner.className = 'memory-inner';
+                    
+                    const front = document.createElement('div');
+                    front.className = 'memory-front';
+                    front.textContent = card.value;
+                    
+                    const back = document.createElement('div');
+                    back.className = 'memory-back';
+                    back.innerHTML = '<i class="fas fa-question"></i>';
+                    
+                    inner.appendChild(front);
+                    inner.appendChild(back);
+                    cardElement.appendChild(inner);
+                    
+                    cardElement.addEventListener('click', () => this.flipCard(index));
+                    
+                    gridElement.appendChild(cardElement);
+                });
+            },
+            
+            flipCard: function(index) {
+                const card = this.cards[index];
+                
+                // No hacer nada si la carta ya está volteada o emparejada
+                if (card.flipped || card.matched || this.flippedCards.length >= 2) {
+                    return;
+                }
+                
+                // Voltear la carta
+                card.flipped = true;
+                this.flippedCards.push(index);
+                this.renderGrid();
+                
+                // Si tenemos dos cartas volteadas, verificar si son pareja
+                if (this.flippedCards.length === 2) {
+                    this.moves++;
+                    document.getElementById('memory-moves').textContent = this.moves;
+                    
+                    const [firstIndex, secondIndex] = this.flippedCards;
+                    const firstCard = this.cards[firstIndex];
+                    const secondCard = this.cards[secondIndex];
+                    
+                    if (firstCard.value === secondCard.value) {
+                        // Son pareja
+                        firstCard.matched = true;
+                        secondCard.matched = true;
+                        this.matchedPairs++;
+                        document.getElementById('memory-pairs').textContent = this.matchedPairs;
+                        
+                        this.flippedCards = [];
+                        
+                        // Verificar si el juego está completo
+                        if (this.matchedPairs === this.images.length) {
+                            setTimeout(() => {
+                                alert(`¡Felicidades! Has completado el memorama en ${this.moves} movimientos.`);
+                            }, 500);
+                        }
+                    } else {
+                        // No son pareja, voltear de nuevo después de un breve tiempo
+                        setTimeout(() => {
+                            firstCard.flipped = false;
+                            secondCard.flipped = false;
+                            this.flippedCards = [];
+                            this.renderGrid();
+                        }, 1000);
+                    }
+                }
+                
+                this.saveProgress();
+            },
+            
+            saveProgress: function() {
+                const progress = {
+                    cards: this.cards,
+                    flippedCards: this.flippedCards,
+                    matchedPairs: this.matchedPairs,
+                    moves: this.moves
+                };
+                
+                storage.save('memoryProgress', progress);
+            },
+            
+            loadProgress: function() {
+                const progress = storage.load('memoryProgress');
+                
+                if (progress) {
+                    this.cards = progress.cards;
+                    this.flippedCards = progress.flippedCards;
+                    this.matchedPairs = progress.matchedPairs;
+                    this.moves = progress.moves;
+                    document.getElementById('memory-moves').textContent = this.moves;
+                    document.getElementById('memory-pairs').textContent = this.matchedPairs;
+                }
+            }
+        };
+
+        // Juego de Rompecabezas
+        const puzzleGame = {
+            pieces: [],
+            emptyIndex: 8,
+            moves: 0,
+            imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+            
+            init: function() {
+                this.loadProgress();
+                document.getElementById('new-puzzle').addEventListener('click', () => this.newGame());
+                document.getElementById('shuffle-puzzle').addEventListener('click', () => this.shuffle());
+                document.getElementById('load-image').addEventListener('click', () => this.loadImageFromUrl());
+                
+                // Cargar imagen por defecto
+                this.loadImage(this.imageUrl);
+                
+                if (this.pieces.length > 0) {
+                    this.renderPuzzle();
+                }
+            },
+            
+            newGame: function() {
+                this.pieces = Array.from({length: 9}, (_, i) => i);
+                this.emptyIndex = 8;
+                this.moves = 0;
+                document.getElementById('puzzle-moves').textContent = '0';
+                document.getElementById('puzzle-completed').style.display = 'none';
+                this.shuffle();
+            },
+            
+            loadImageFromUrl: function() {
+                const url = document.getElementById('puzzle-image-url').value;
+                if (url) {
+                    this.imageUrl = url;
+                    this.loadImage(url);
+                    this.newGame();
+                }
+            },
+            
+            loadImage: function(url) {
+                // Preload the image
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                    this.newGame();
+                };
+                img.src = url;
+            },
+            
+            shuffle: function() {
+                // Realizar movimientos aleatorios para mezclar el rompecabezas
+                for (let i = 0; i < 100; i++) {
+                    const possibleMoves = this.getPossibleMoves();
+                    const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                    this.movePiece(randomMove);
+                }
+                
+                this.moves = 0;
+                document.getElementById('puzzle-moves').textContent = '0';
+                this.renderPuzzle();
+                this.saveProgress();
+            },
+            
+            renderPuzzle: function() {
+                const container = document.getElementById('puzzle-container');
+                container.innerHTML = '';
+                
+                this.pieces.forEach((piece, index) => {
+                    if (piece === 8) {
+                        // Esta es la pieza vacía
+                        const emptyPiece = document.createElement('div');
+                        emptyPiece.className = 'puzzle-piece empty';
+                        container.appendChild(emptyPiece);
+                        return;
+                    }
+                    
+                    const pieceElement = document.createElement('div');
+                    pieceElement.className = 'puzzle-piece';
+                    
+                    // Calcular la posición de fondo para mostrar la parte correcta de la imagen
+                    const row = Math.floor(piece / 3);
+                    const col = piece % 3;
+                    
+                    pieceElement.style.backgroundImage = `url(${this.imageUrl})`;
+                    pieceElement.style.backgroundPosition = `-${col * (400/3)}px -${row * (400/3)}px`;
+                    pieceElement.style.backgroundSize = '400px 400px';
+                    
+                    // Posicionar la pieza en el contenedor
+                    const positionRow = Math.floor(index / 3);
+                    const positionCol = index % 3;
+                    
+                    pieceElement.style.width = `${400/3}px`;
+                    pieceElement.style.height = `${400/3}px`;
+                    pieceElement.style.top = `${positionRow * (400/3)}px`;
+                    pieceElement.style.left = `${positionCol * (400/3)}px`;
+                    
+                    pieceElement.addEventListener('click', () => {
+                        this.handlePieceClick(index);
+                    });
+                    
+                    container.appendChild(pieceElement);
+                });
+            },
+            
+            handlePieceClick: function(index) {
+                const possibleMoves = this.getPossibleMoves();
+                
+                if (possibleMoves.includes(index)) {
+                    this.movePiece(index);
+                    this.moves++;
+                    document.getElementById('puzzle-moves').textContent = this.moves;
+                    this.renderPuzzle();
+                    this.saveProgress();
+                    
+                    // Verificar si el rompecabezas está resuelto
+                    if (this.isSolved()) {
+                        this.celebrate();
+                    }
+                }
+            },
+            
+            getPossibleMoves: function() {
+                const moves = [];
+                const emptyRow = Math.floor(this.emptyIndex / 3);
+                const emptyCol = this.emptyIndex % 3;
+                
+                // Comprobar las cuatro direcciones posibles
+                if (emptyRow > 0) moves.push(this.emptyIndex - 3); // Arriba
+                if (emptyRow < 2) moves.push(this.emptyIndex + 3); // Abajo
+                if (emptyCol > 0) moves.push(this.emptyIndex - 1); // Izquierda
+                if (emptyCol < 2) moves.push(this.emptyIndex + 1); // Derecha
+                
+                return moves;
+            },
+            
+            movePiece: function(index) {
+                // Intercambiar la pieza seleccionada con el espacio vacío
+                [this.pieces[this.emptyIndex], this.pieces[index]] = [this.pieces[index], this.pieces[this.emptyIndex]];
+                this.emptyIndex = index;
+            },
+            
+            isSolved: function() {
+                // El rompecabezas está resuelto cuando todas las piezas están en orden
+                for (let i = 0; i < 8; i++) {
+                    if (this.pieces[i] !== i) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            
+            celebrate: function() {
+                // Mostrar mensaje de felicitación
+                document.getElementById('puzzle-completed').style.display = 'block';
+                
+                // Crear efecto de confeti
+                this.createConfetti();
+                
+                // Agregar clase de celebración al contenedor
+                document.getElementById('puzzle-container').classList.add('celebrate');
+                
+                // Reproducir sonido de celebración (si está permitido)
+                this.playSuccessSound();
+            },
+            
+            createConfetti: function() {
+                const colors = ['#5e72e4', '#2dce89', '#f5365c', '#fb6340', '#11cdef'];
+                
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animation = `celebrate ${Math.random() * 3 + 2}s linear forwards`;
+                    document.body.appendChild(confetti);
+                    
+                    // Eliminar el confeti después de que termine la animación
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }
+            },
+            
+            playSuccessSound: function() {
+                // Crear un sonido de éxito simple usando el API de Audio
+                try {
+                    const context = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = context.createOscillator();
+                    const gainNode = context.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(context.destination);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 523.25; // Do alto
+                    gainNode.gain.value = 0.3;
+                    
+                    oscillator.start();
+                    
+                    // Cambiar la frecuencia para crear una melodía simple
+                    setTimeout(() => {
+                        oscillator.frequency.value = 659.25; // Mi
+                    }, 200);
+                    
+                    setTimeout(() => {
+                        oscillator.frequency.value = 783.99; // Sol
+                    }, 400);
+                    
+                    // Detener después de 700 ms
+                    setTimeout(() => {
+                        oscillator.stop();
+                    }, 700);
+                } catch (e) {
+                    console.log('El audio no está permitido en este contexto');
+                }
+            },
+            
+            saveProgress: function() {
+                const progress = {
+                    pieces: this.pieces,
+                    emptyIndex: this.emptyIndex,
+                    moves: this.moves,
+                    imageUrl: this.imageUrl
+                };
+                
+                storage.save('puzzleProgress', progress);
+            },
+            
+            loadProgress: function() {
+                const progress = storage.load('puzzleProgress');
+                
+                if (progress) {
+                    this.pieces = progress.pieces;
+                    this.emptyIndex = progress.emptyIndex;
+                    this.moves = progress.moves;
+                    this.imageUrl = progress.imageUrl || this.imageUrl;
+                    document.getElementById('puzzle-moves').textContent = this.moves;
+                    document.getElementById('puzzle-image-url').value = this.imageUrl;
+                    
+                    if (this.isSolved()) {
+                        document.getElementById('puzzle-completed').style.display = 'block';
+                    }
+                }
+            }
+        };
+
+        // Inicializar los juegos cuando la página cargue
+        document.addEventListener('DOMContentLoaded', () => {
+            sudokuGame.init();
+            memoryGame.init();
+            puzzleGame.init();
+        });
+    </script>
+</body>
+</html>

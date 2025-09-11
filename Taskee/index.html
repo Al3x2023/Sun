@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskee - Gestor de Tareas con Estilo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #564FD8;
+            --secondary: #36D1DC;
+            --accent: #FF6B6B;
+            --success: #4CC9F0;
+            --warning: #FFD166;
+            --danger: #F94144;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --gray: #6C757D;
+            --light-gray: #E9ECEF;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+            --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark);
+            transition: var(--transition);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: white;
+            text-decoration: none;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-btn.active {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 3px white;
+        }
+
+        .theme-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .theme-blue { background: linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%); }
+        .theme-sunset { background: linear-gradient(135deg, #ff6b6b 0%, #ff9a3c 100%); }
+        .theme-green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin: 20px 0;
+            transition: var(--transition);
+            transform: translateY(0);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-icon {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .app-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .notification-permission {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: var(--radius);
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .notification-permission p {
+            margin: 0;
+        }
+
+        #enable-notifications {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #enable-notifications:hover {
+            background: #e55c5c;
+            transform: translateY(-2px);
+        }
+
+        .sound-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .sound-toggle {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .sound-toggle.muted {
+            background: rgba(249, 65, 68, 0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            background: var(--light);
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .task-form {
+            padding: 25px;
+            background: white;
+            border-bottom: 1px solid var(--light-gray);
+            position: relative;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        #task-input {
+            flex: 1;
+            padding: 18px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #task-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        #add-task-btn {
+            padding: 18px 28px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #add-task-btn:hover {
+            background: #e55c5c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: 500;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--radius);
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        .priority-selectors {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .priority-btn {
+            padding: 10px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 50px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .priority-btn.active {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .priority-low.active {
+            border-color: var(--success);
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+
+        .priority-medium.active {
+            border-color: var(--warning);
+            background: rgba(255, 209, 102, 0.1);
+            color: #d89e00;
+        }
+
+        .priority-high.active {
+            border-color: var(--danger);
+            background: rgba(249, 65, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray);
+            transition: var(--transition);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .filter-btn:hover:not(.active) {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .sort-select {
+            padding: 10px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 50px;
+            background: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sort-select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        .tasks-container {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: fadeIn 0.5s ease;
+            border-left: 5px solid var(--primary);
+            position: relative;
+        }
+
+        .task-item.low-priority {
+            border-left-color: var(--success);
+        }
+
+        .task-item.medium-priority {
+            border-left-color: var(--warning);
+        }
+
+        .task-item.high-priority {
+            border-left-color: var(--danger);
+        }
+
+        .task-item.urgent {
+            animation: pulse 2s infinite;
+            border-left-color: var(--danger);
+        }
+
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-checkbox {
+            margin-right: 20px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: var(--success);
+            flex-shrink: 0;
+        }
+
+        .task-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .task-text {
+            font-size: 1.1rem;
+            transition: var(--transition);
+            word-break: break-word;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .task-priority {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .priority-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .priority-low .priority-dot {
+            background: var(--success);
+        }
+
+        .priority-medium .priority-dot {
+            background: var(--warning);
+        }
+
+        .priority-high .priority-dot {
+            background: var(--danger);
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .task-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .edit-btn {
+            color: var(--primary);
+        }
+
+        .edit-btn:hover {
+            background: rgba(108, 99, 255, 0.1);
+            transform: rotate(15deg);
+        }
+
+        .delete-btn {
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: rgba(249, 65, 68, 0.1);
+            transform: rotate(15deg);
+        }
+
+        .reminder-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            animation: pulse 1.5s infinite;
+        }
+
+        .task-stats {
+            padding: 20px;
+            background: var(--light);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .clear-btn {
+            padding: 10px 20px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .clear-btn:hover {
+            background: #e02d30;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(249, 65, 68, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #dee2e6;
+            animation: bounce 2s infinite;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .empty-state .btn {
+            padding: 12px 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .empty-state .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+        }
+
+        /* Notificaciones */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            padding: 15px 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideInRight 0.3s ease;
+            max-width: 350px;
+            transition: var(--transition);
+        }
+
+        .notification:hover {
+            transform: translateX(-5px);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .notification.success .notification-icon {
+            color: var(--success);
+        }
+
+        .notification.warning .notification-icon {
+            color: var(--warning);
+        }
+
+        .notification.danger .notification-icon {
+            color: var(--danger);
+        }
+
+        .notification.info .notification-icon {
+            color: var(--primary);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--gray);
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .notification-close:hover {
+            color: var(--dark);
+            transform: rotate(90deg);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(249, 65, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(249, 65, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(249, 65, 68, 0); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px 0;
+            }
+            
+            header {
+                padding: 25px 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .app-description {
+                font-size: 1rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            #add-task-btn {
+                justify-content: center;
+            }
+            
+            .filters {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .filter-group {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .task-stats {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .task-actions {
+                align-self: flex-end;
+            }
+            
+            .notification {
+                max-width: 300px;
+            }
+            
+            .notification-permission {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .sound-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .theme-selector {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .theme-btn {
+                width: 25px;
+                height: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+        <a href="../index.html" class="back-button"><i class="fas fa-arrow-left"></i></a>
+    <div class="theme-selector">
+        <button class="theme-btn theme-purple active" data-theme="purple"></button>
+        <button class="theme-btn theme-blue" data-theme="blue"></button>
+        <button class="theme-btn theme-sunset" data-theme="sunset"></button>
+        <button class="theme-btn theme-green" data-theme="green"></button>
+    </div>
+
+    <div class="notification-container" id="notification-container">
+        <!-- Notificaciones aparecerán aquí -->
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-bell logo-icon"></i>
+                <h1>Taskee</h1>
+            </div>
+            <p class="app-description">Tu gestor de tareas con recordatorios sonoros</p>
+            
+            <div class="notification-permission" id="notification-permission-panel">
+                <p><i class="fas fa-info-circle"></i> Habilita las notificaciones para recibir recordatorios</p>
+                <button id="enable-notifications">
+                    <i class="fas fa-bell"></i> Activar notificaciones
+                </button>
+            </div>
+            
+            <div class="sound-controls">
+                <button id="sound-toggle" class="sound-toggle">
+                    <i class="fas fa-volume-up"></i> Sonido Activado
+                </button>
+                <button id="test-sound" class="sound-toggle">
+                    <i class="fas fa-play"></i> Probar sonido
+                </button>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-number" id="total-tasks">0</div>
+                <div class="stat-label">Tareas Totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completed-tasks">0</div>
+                <div class="stat-label">Completadas</div>
+            </div>
+        </div>
+
+        <div class="task-form">
+            <div class="form-group">
+                <input type="text" id="task-input" placeholder="¿Qué necesitas hacer?">
+                <button id="add-task-btn">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+            </div>
+            
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="reminder-date"><i class="fas fa-calendar"></i> Fecha recordatorio</label>
+                    <input type="date" id="reminder-date">
+                </div>
+                <div class="input-group">
+                    <label for="reminder-time"><i class="fas fa-clock"></i> Hora recordatorio</label>
+                    <input type="time" id="reminder-time">
+                </div>
+            </div>
+            
+            <div class="priority-selectors">
+                <button class="priority-btn priority-low active" data-priority="low">
+                    <i class="fas fa-arrow-down"></i> Baja
+                </button>
+                <button class="priority-btn priority-medium" data-priority="medium">
+                    <i class="fas fa-minus"></i> Media
+                </button>
+                <button class="priority-btn priority-high" data-priority="high">
+                    <i class="fas fa-arrow-up"></i> Alta
+                </button>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-list"></i> Todas
+                </button>
+                <button class="filter-btn" data-filter="pending">
+                    <i class="fas fa-clock"></i> Pendientes
+                </button>
+                <button class="filter-btn" data-filter="completed">
+                    <i class="fas fa-check-circle"></i> Completadas
+                </button>
+            </div>
+            <select class="sort-select" id="sort-select">
+                <option value="newest">Más recientes primero</option>
+                <option value="oldest">Más antiguas primero</option>
+                <option value="priority">Por prioridad</option>
+                <option value="reminder">Por recordatorio</option>
+            </select>
+        </div>
+
+        <div class="tasks-container">
+            <ul class="task-list" id="task-list">
+                <!-- Las tareas se agregarán aquí dinámicamente -->
+            </ul>
+        </div>
+
+        <div class="task-stats">
+            <span id="progress-text">0% completado</span>
+            <button class="clear-btn" id="clear-btn">
+                <i class="fas fa-trash"></i> Limpiar completadas
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos del DOM
+            const taskInput = document.getElementById('task-input');
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const taskList = document.getElementById('task-list');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const priorityBtns = document.querySelectorAll('.priority-btn');
+            const sortSelect = document.getElementById('sort-select');
+            const totalTasksEl = document.getElementById('total-tasks');
+            const completedTasksEl = document.getElementById('completed-tasks');
+            const progressText = document.getElementById('progress-text');
+            const clearBtn = document.getElementById('clear-btn');
+            const reminderDate = document.getElementById('reminder-date');
+            const reminderTime = document.getElementById('reminder-time');
+            const notificationContainer = document.getElementById('notification-container');
+            const enableNotificationsBtn = document.getElementById('enable-notifications');
+            const notificationPermissionPanel = document.getElementById('notification-permission-panel');
+            const soundToggle = document.getElementById('sound-toggle');
+            const testSoundBtn = document.getElementById('test-sound');
+            const themeButtons = document.querySelectorAll('.theme-btn');
+            
+            // Variables de estado
+            let tasks = [];
+            let currentFilter = 'all';
+            let currentPriority = 'low';
+            let currentSort = 'newest';
+            let editTaskId = null;
+            let notificationCheckInterval;
+            let notificationPermission = false;
+            let soundEnabled = true;
+            let audioContext = null;
+            
+            // Inicializar la aplicación
+            initApp();
+            
+            // Función de inicialización
+            function initApp() {
+                // Cargar tareas desde localStorage
+                loadTasks();
+                updateStats();
+                
+                // Cargar preferencia de sonido
+                const soundPreference = localStorage.getItem('taskee-sound-enabled');
+                if (soundPreference !== null) {
+                    soundEnabled = soundPreference === 'true';
+                    updateSoundToggle();
+                }
+                
+                // Cargar tema preferido
+                const savedTheme = localStorage.getItem('taskee-theme') || 'purple';
+                changeTheme(savedTheme);
+                
+                // Comprobar si las notificaciones están soportadas
+                if (!('Notification' in window)) {
+                    showNotification('No compatible', 'Tu navegador no soporta notificaciones nativas', 'warning');
+                    notificationPermissionPanel.style.display = 'none';
+                    return;
+                }
+                
+                // Comprobar el estado de permiso de notificaciones
+                if (Notification.permission === 'granted') {
+                    notificationPermission = true;
+                    notificationPermissionPanel.style.display = 'none';
+                    startNotificationChecker();
+                } else if (Notification.permission === 'denied') {
+                    notificationPermissionPanel.innerHTML = '<p><i class="fas fa-bell-slash"></i> Las notificaciones están bloqueadas para este sitio</p>';
+                }
+                
+                // Configurar event listeners
+                setupEventListeners();
+            }
+            
+            // Configurar event listeners
+            function setupEventListeners() {
+                addTaskBtn.addEventListener('click', addTask);
+                taskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') addTask();
+                });
+                
+                filterBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        filterBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        currentFilter = btn.dataset.filter;
+                        renderTasks();
+                    });
+                });
+                
+                priorityBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        priorityBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        currentPriority = btn.dataset.priority;
+                    });
+                });
+                
+                sortSelect.addEventListener('change', () => {
+                    currentSort = sortSelect.value;
+                    renderTasks();
+                });
+                
+                clearBtn.addEventListener('click', clearCompletedTasks);
+                
+                enableNotificationsBtn.addEventListener('click', requestNotificationPermission);
+                
+                soundToggle.addEventListener('click', toggleSound);
+                testSoundBtn.addEventListener('click', playTestSound);
+                
+                themeButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const theme = btn.dataset.theme;
+                        changeTheme(theme);
+                    });
+                });
+            }
+            
+            // Cambiar tema de la aplicación
+            function changeTheme(theme) {
+                // Actualizar botones de tema
+                themeButtons.forEach(btn => {
+                    if (btn.dataset.theme === theme) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // Cambiar variables CSS según el tema
+                const root = document.documentElement;
+                switch(theme) {
+                    case 'blue':
+                        root.style.setProperty('--primary', '#36D1DC');
+                        root.style.setProperty('--primary-dark', '#5B86E5');
+                        root.style.setProperty('--background', 'linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%)');
+                        break;
+                    case 'sunset':
+                        root.style.setProperty('--primary', '#FF6B6B');
+                        root.style.setProperty('--primary-dark', '#FF9A3C');
+                        root.style.setProperty('--background', 'linear-gradient(135deg, #ff6b6b 0%, #ff9a3c 100%)');
+                        break;
+                    case 'green':
+                        root.style.setProperty('--primary', '#43e97b');
+                        root.style.setProperty('--primary-dark', '#38f9d7');
+                        root.style.setProperty('--background', 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)');
+                        break;
+                    default: // purple
+                        root.style.setProperty('--primary', '#6C63FF');
+                        root.style.setProperty('--primary-dark', '#564FD8');
+                        root.style.setProperty('--background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
+                }
+                
+                // Guardar preferencia
+                localStorage.setItem('taskee-theme', theme);
+            }
+            
+            // Inicializar el contexto de audio
+            function initAudioContext() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                return audioContext;
+            }
+            
+            // Crear sonidos usando Web Audio API
+            function createSound(frequency, type, duration = 0.5) {
+                if (!soundEnabled) return;
+                
+                try {
+                    const context = initAudioContext();
+                    const oscillator = context.createOscillator();
+                    const gainNode = context.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(context.destination);
+                    
+                    oscillator.type = type;
+                    oscillator.frequency.value = frequency;
+                    
+                    gainNode.gain.setValueAtTime(0.3, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + duration);
+                    
+                    oscillator.start(context.currentTime);
+                    oscillator.stop(context.currentTime + duration);
+                } catch (error) {
+                    console.error('Error creando sonido:', error);
+                }
+            }
+            
+            // Alternar sonido
+            function toggleSound() {
+                soundEnabled = !soundEnabled;
+                localStorage.setItem('taskee-sound-enabled', soundEnabled);
+                updateSoundToggle();
+                
+                if (soundEnabled) {
+                    playSound('taskee');
+                    showNotification('Sonido activado', 'Los sonidos de notificación están ahora activados', 'success');
+                } else {
+                    showNotification('Sonido desactivado', 'Los sonidos de notificación están ahora desactivados', 'info');
+                }
+            }
+            
+            // Actualizar apariencia del botón de sonido
+            function updateSoundToggle() {
+                if (soundEnabled) {
+                    soundToggle.innerHTML = '<i class="fas fa-volume-up"></i> Sonido Activado';
+                    soundToggle.classList.remove('muted');
+                } else {
+                    soundToggle.innerHTML = '<i class="fas fa-volume-mute"></i> Sonido Desactivado';
+                    soundToggle.classList.add('muted');
+                }
+            }
+            
+            // Probar sonido
+            function playTestSound() {
+                if (soundEnabled) {
+                    playSound('taskee');
+                    showNotification('Sonido de prueba', 'Reproduciendo sonido de prueba', 'info');
+                } else {
+                    showNotification('Sonido desactivado', 'Activa el sonido para probarlo', 'warning');
+                }
+            }
+            
+            // Reproducir sonido según el tipo
+            function playSound(type) {
+                if (!soundEnabled) return;
+                
+                try {
+                    switch(type) {
+                        case 'notification':
+                            createSound(800, 'sine', 0.3);
+                            setTimeout(() => createSound(1000, 'sine', 0.3), 150);
+                            break;
+                        case 'success':
+                            createSound(523.25, 'sine', 0.2); // Do
+                            setTimeout(() => createSound(659.25, 'sine', 0.2), 200); // Mi
+                            setTimeout(() => createSound(783.99, 'sine', 0.4), 400); // Sol
+                            break;
+                        case 'warning':
+                            createSound(400, 'sawtooth', 0.5);
+                            setTimeout(() => createSound(300, 'sawtooth', 0.5), 500);
+                            break;
+                        case 'taskee':
+                        default:
+                            createSound(660, 'sine', 0.1); // T
+                            setTimeout(() => createSound(880, 'sine', 0.1), 100); // A
+                            setTimeout(() => createSound(1100, 'sine', 0.1), 200); // S
+                            setTimeout(() => createSound(1320, 'sine', 0.1), 300); // K
+                            setTimeout(() => createSound(1760, 'sine', 0.2), 400); // E
+                            setTimeout(() => createSound(2200, 'sine', 0.3), 600); // E
+                            break;
+                    }
+                } catch (error) {
+                    console.error('Error reproduciendo sonido:', error);
+                }
+            }
+            
+            // Solicitar permiso para notificaciones
+            function requestNotificationPermission() {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationPermission = true;
+                        notificationPermissionPanel.style.display = 'none';
+                        startNotificationChecker();
+                        showNotification('Notificaciones activadas', 'Ahora recibirás recordatorios de tus tareas', 'success');
+                        playSound('success');
+                    } else {
+                        showNotification('Permiso denegado', 'No podrás recibir notificaciones de recordatorios', 'warning');
+                        playSound('warning');
+                    }
+                });
+            }
+            
+            // Función para agregar una nueva tarea
+            function addTask() {
+                const taskText = taskInput.value.trim();
+                
+                if (taskText === '') {
+                    showNotification('Error', 'Por favor, escribe una tarea', 'danger');
+                    playSound('warning');
+                    return;
+                }
+                
+                // Obtener fecha y hora de recordatorio
+                let reminderDateTime = null;
+                if (reminderDate.value && reminderTime.value) {
+                    reminderDateTime = new Date(`${reminderDate.value}T${reminderTime.value}`);
+                    // Verificar que la fecha sea válida y en el futuro
+                    if (isNaN(reminderDateTime.getTime()) || reminderDateTime <= new Date()) {
+                        showNotification('Error', 'La fecha y hora del recordatorio deben ser futuras', 'danger');
+                        playSound('warning');
+                        return;
+                    }
+                }
+                
+                if (editTaskId !== null) {
+                    // Estamos en modo edición
+                    tasks = tasks.map(task => {
+                        if (task.id === editTaskId) {
+                            return { 
+                                ...task, 
+                                text: taskText,
+                                priority: currentPriority,
+                                reminder: reminderDateTime
+                            };
+                        }
+                        return task;
+                    });
+                    
+                    editTaskId = null;
+                    addTaskBtn.innerHTML = '<i class="fas fa-plus"></i> Agregar';
+                    priorityBtns.forEach(btn => btn.classList.remove('active'));
+                    document.querySelector('.priority-btn[data-priority="low"]').classList.add('active');
+                    currentPriority = 'low';
+                    
+                    // Limpiar campos de recordatorio
+                    reminderDate.value = '';
+                    reminderTime.value = '';
+                    
+                    showNotification('Tarea actualizada', 'La tarea se ha actualizado correctamente', 'success');
+                    playSound('success');
+                } else {
+                    // Crear nueva tarea
+                    const newTask = {
+                        id: Date.now(),
+                        text: taskText,
+                        completed: false,
+                        priority: currentPriority,
+                        reminder: reminderDateTime,
+                        createdAt: new Date(),
+                        completedAt: null,
+                        notified: false
+                    };
+                    
+                    tasks.push(newTask);
+                    
+                    // Limpiar campos de recordatorio
+                    reminderDate.value = '';
+                    reminderTime.value = '';
+                    
+                    showNotification('Tarea agregada', 'Nueva tarea agregada correctamente', 'success');
+                    playSound('taskee');
+                }
+                
+                // Limpiar input
+                taskInput.value = '';
+                // Guardar y renderizar
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+            
+            // Función para eliminar una tarea
+            function deleteTask(id) {
+                if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+                    tasks = tasks.filter(task => task.id !== id);
+                    saveTasks();
+                    renderTasks();
+                    updateStats();
+                    showNotification('Tarea eliminada', 'La tarea se ha eliminado correctamente', 'info');
+                    playSound('notification');
+                }
+            }
+            
+            // Función para alternar el estado de completado
+            function toggleCompleted(id) {
+                tasks = tasks.map(task => {
+                    if (task.id === id) {
+                        const completed = !task.completed;
+                        return { 
+                            ...task, 
+                            completed,
+                            completedAt: completed ? new Date() : null
+                        };
+                    }
+                    return task;
+                });
+                
+                saveTasks();
+                renderTasks();
+                updateStats();
+                
+                // Animación
+                const taskItem = document.querySelector(`.task-item[data-id="${id}"]`);
+                if (taskItem) {
+                    taskItem.classList.add('completed-animation');
+                    setTimeout(() => {
+                        taskItem.classList.remove('completed-animation');
+                    }, 500);
+                }
+                
+                const task = tasks.find(t => t.id === id);
+                if (task && task.completed) {
+                    showNotification('Tarea completada', `Has completado: ${task.text}`, 'success');
+                    playSound('success');
+                }
+            }
+            
+            // Función para editar una tarea
+            function editTask(id) {
+                const task = tasks.find(task => task.id === id);
+                if (task) {
+                    taskInput.value = task.text;
+                    taskInput.focus();
+                    editTaskId = id;
+                    currentPriority = task.priority;
+                    
+                    // Actualizar botones de prioridad
+                    priorityBtns.forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.priority === task.priority) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    
+                    // Actualizar campos de recordatorio
+                    if (task.reminder) {
+                        const reminderDateObj = new Date(task.reminder);
+                        reminderDate.value = reminderDateObj.toISOString().split('T')[0];
+                        reminderTime.value = reminderDateObj.toTimeString().substring(0, 5);
+                    } else {
+                        reminderDate.value = '';
+                        reminderTime.value = '';
+                    }
+                    
+                    addTaskBtn.innerHTML = '<i class="fas fa-save"></i> Guardar';
+                }
+            }
+            
+            // Función para limpiar tareas completadas
+            function clearCompletedTasks() {
+                const completedTasks = tasks.filter(task => task.completed);
+                if (completedTasks.length === 0) {
+                    showNotification('Info', 'No hay tareas completadas para eliminar', 'info');
+                    return;
+                }
+                
+                if (confirm(`¿Estás seguro de que quieres eliminar ${completedTasks.length} tareas completadas?`)) {
+                    tasks = tasks.filter(task => !task.completed);
+                    saveTasks();
+                    renderTasks();
+                    updateStats();
+                    showNotification('Tareas eliminadas', `Se eliminaron ${completedTasks.length} tareas completadas`, 'info');
+                    playSound('notification');
+                }
+            }
+            
+            // Función para mostrar notificaciones en la app
+            function showNotification(title, message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                let icon = 'fas fa-info-circle';
+                if (type === 'success') icon = 'fas fa-check-circle';
+                if (type === 'warning') icon = 'fas fa-exclamation-triangle';
+                if (type === 'danger') icon = 'fas fa-exclamation-circle';
+                
+                notification.innerHTML = `
+                    <i class="${icon} notification-icon"></i>
+                    <div class="notification-content">
+                        <div class="notification-title">${title}</div>
+                        <div class="notification-message">${message}</div>
+                    </div>
+                    <button class="notification-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                notificationContainer.appendChild(notification);
+                
+                // Evento para cerrar la notificación
+                const closeBtn = notification.querySelector('.notification-close');
+                closeBtn.addEventListener('click', () => {
+                    notification.style.animation = 'slideInRight 0.3s ease reverse';
+                    setTimeout(() => {
+                        notificationContainer.removeChild(notification);
+                    }, 300);
+                });
+                
+                // Auto-eliminar después de 5 segundos
+                setTimeout(() => {
+                    if (notification.parentNode === notificationContainer) {
+                        notification.style.animation = 'slideInRight 0.3s ease reverse';
+                        setTimeout(() => {
+                            notificationContainer.removeChild(notification);
+                        }, 300);
+                    }
+                }, 5000);
+            }
+            
+            // Función para mostrar notificaciones nativas del sistema
+            function showSystemNotification(title, message) {
+                if (!notificationPermission) return;
+                
+                // Verificar si el navegador soporta notificaciones
+                if (!('Notification' in window)) {
+                    return;
+                }
+                
+                // Crear y mostrar la notificación
+                const notification = new Notification(title, {
+                    body: message,
+                    icon: 'https://example.com/icon.png',
+                    tag: 'taskee-notification'
+                });
+                
+                // Reproducir sonido de notificación
+                playSound('notification');
+                
+                // Cerrar la notificación después de 10 segundos
+                setTimeout(() => {
+                    notification.close();
+                }, 10000);
+                
+                // Enfocar la ventana al hacer clic en la notificación
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+            
+            // Función para comprobar recordatorios
+            function checkReminders() {
+                const now = new Date();
+                
+                tasks.forEach(task => {
+                    if (task.reminder && !task.completed && !task.notified) {
+                        const reminderTime = new Date(task.reminder);
+                        // Notificar 1 minuto antes del recordatorio
+                        if (now >= reminderTime - 60000 && now < reminderTime) {
+                            showSystemNotification('Recordatorio de Taskee', `La tarea "${task.text}" está próxima a vencer`);
+                            showNotification('Recordatorio', `La tarea "${task.text}" está próxima a vencer`, 'warning');
+                            task.notified = true;
+                            saveTasks();
+                        }
+                    }
+                });
+            }
+            
+            // Iniciar comprobación de recordatorios
+            function startNotificationChecker() {
+                notificationCheckInterval = setInterval(checkReminders, 30000); // Comprobar cada 30 segundos
+            }
+            
+            // Función para renderizar las tareas
+            function renderTasks() {
+                // Filtrar tareas según el filtro actual
+                let filteredTasks = [];
+                
+                switch (currentFilter) {
+                    case 'pending':
+                        filteredTasks = tasks.filter(task => !task.completed);
+                        break;
+                    case 'completed':
+                        filteredTasks = tasks.filter(task => task.completed);
+                        break;
+                    default:
+                        filteredTasks = tasks;
+                }
+                
+                // Ordenar tareas
+                switch (currentSort) {
+                    case 'oldest':
+                        filteredTasks.sort((a, b) => a.createdAt - b.createdAt);
+                        break;
+                    case 'priority':
+                        const priorityOrder = { high: 3, medium: 2, low: 1 };
+                        filteredTasks.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+                        break;
+                    case 'reminder':
+                        filteredTasks.sort((a, b) => {
+                            if (!a.reminder) return 1;
+                            if (!b.reminder) return -1;
+                            return a.reminder - b.reminder;
+                        });
+                        break;
+                    default: // newest first
+                        filteredTasks.sort((a, b) => b.createdAt - a.createdAt);
+                }
+                
+                // Limpiar lista
+                taskList.innerHTML = '';
+                
+                // Mostrar estado vacío si no hay tareas
+                if (filteredTasks.length === 0) {
+                    const emptyState = document.createElement('li');
+                    emptyState.className = 'empty-state';
+                    
+                    let message = '';
+                    let icon = 'fas fa-clipboard-list';
+                    
+                    switch (currentFilter) {
+                        case 'pending':
+                            message = '¡No hay tareas pendientes!';
+                            icon = 'fas fa-check-circle';
+                            break;
+                        case 'completed':
+                            message = 'No hay tareas completadas';
+                            icon = 'fas fa-inbox';
+                            break;
+                        default:
+                            message = 'No hay tareas. ¡Agrega una nueva!';
+                    }
+                    
+                    emptyState.innerHTML = `
+                        <i class="${icon}"></i>
+                        <p>${message}</p>
+                        <button class="btn" onclick="document.getElementById('task-input').focus()">
+                            <i class="fas fa-plus"></i> Crear tarea
+                        </button>
+                    `;
+                    
+                    taskList.appendChild(emptyState);
+                    return;
+                }
+                
+                // Renderizar tareas
+                filteredTasks.forEach(task => {
+                    const taskItem = document.createElement('li');
+                    taskItem.className = `task-item ${task.completed ? 'completed' : ''} ${task.priority}-priority`;
+                    taskItem.dataset.id = task.id;
+                    
+                    // Comprobar si la tarea es urgente (menos de 1 hora para el recordatorio)
+                    const now = new Date();
+                    if (task.reminder && !task.completed && (new Date(task.reminder) - now) < 3600000) {
+                        taskItem.classList.add('urgent');
+                    }
+                    
+                    // Formatear fecha
+                    const createdDate = new Date(task.createdAt).toLocaleDateString();
+                    
+                    let reminderInfo = '';
+                    if (task.reminder) {
+                        const reminderDate = new Date(task.reminder);
+                        reminderInfo = `<span class="task-date"><i class="fas fa-bell"></i> ${reminderDate.toLocaleString()}</span>`;
+                    }
+                    
+                    taskItem.innerHTML = `
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                        <div class="task-content">
+                            <span class="task-text">${task.text}</span>
+                            <div class="task-meta">
+                                <span class="task-priority ${task.priority}-priority">
+                                    <span class="priority-dot"></span>
+                                    ${task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}
+                                </span>
+                                <span class="task-date">
+                                    <i class="fas fa-calendar"></i> ${createdDate}
+                                </span>
+                                ${reminderInfo}
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-btn edit-btn">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="task-btn delete-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    if (task.reminder && !task.completed) {
+                        taskItem.innerHTML += `<div class="reminder-badge"><i class="fas fa-bell"></i></div>`;
+                    }
+                    
+                    // Event listeners para los elementos de la tarea
+                    const checkbox = taskItem.querySelector('.task-checkbox');
+                    const editBtn = taskItem.querySelector('.edit-btn');
+                    const deleteBtn = taskItem.querySelector('.delete-btn');
+                    
+                    checkbox.addEventListener('change', () => toggleCompleted(task.id));
+                    editBtn.addEventListener('click', () => editTask(task.id));
+                    deleteBtn.addEventListener('click', () => deleteTask(task.id));
+                    
+                    taskList.appendChild(taskItem);
+                });
+            }
+            
+            // Función para actualizar las estadísticas
+            function updateStats() {
+                const totalTasks = tasks.length;
+                const completedTasks = tasks.filter(task => task.completed).length;
+                const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                
+                totalTasksEl.textContent = totalTasks;
+                completedTasksEl.textContent = completedTasks;
+                progressText.textContent = `${completionPercentage}% completado`;
+            }
+            
+            // Función para guardar tareas en localStorage
+            function saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            }
+            
+            // Función para cargar tareas desde localStorage
+            function loadTasks() {
+                const savedTasks = JSON.parse(localStorage.getItem('tasks'));
+                if (savedTasks) {
+                    tasks = savedTasks;
+                    renderTasks();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

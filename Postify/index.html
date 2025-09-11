@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postify - Notas Adhesivas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --accent: #ff6b6b;
+            --light: #ffffff;
+            --dark: #333333;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: var(--light);
+            text-decoration: none;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--light);
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .app-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            background: linear-gradient(to right, var(--accent), #ff8e8e);
+            color: var(--light);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        #notes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .note {
+            width: 100%;
+            min-height: 250px;
+            padding: 0;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            resize: both;
+            overflow: hidden;
+            min-width: 240px;
+            min-height: 200px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .note:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            cursor: grab;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            user-select: none;
+        }
+
+        .note-header:active {
+            cursor: grabbing;
+        }
+
+        .note-content {
+            flex-grow: 1;
+            border: none;
+            resize: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 16px;
+            outline: none;
+            padding: 15px;
+            line-height: 1.5;
+        }
+
+        .note-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background-color: rgba(0, 0, 0, 0.03);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .note-btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .color-btn {
+            background-color: rgba(255, 255, 255, 0.7);
+            color: #333;
+        }
+
+        .color-btn:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .delete-btn {
+            background-color: rgba(255, 82, 82, 0.2);
+            color: #ff5252;
+        }
+
+        .delete-btn:hover {
+            background-color: rgba(255, 82, 82, 0.3);
+        }
+
+        .color-options {
+            display: none;
+            position: absolute;
+            bottom: 55px;
+            right: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-option:hover {
+            transform: scale(1.15);
+        }
+
+        .note-count {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            padding: 25px;
+            color: white;
+            max-width: 600px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions ul {
+            list-style-type: none;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.5;
+        }
+
+        .instructions i {
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        /* Responsive design para móviles */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .logo-icon {
+                font-size: 2.2rem;
+            }
+            
+            .app-description {
+                font-size: 0.95rem;
+                padding: 0 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 12px 20px;
+            }
+            
+            #notes-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .note {
+                min-height: 200px;
+            }
+            
+            .instructions {
+                font-size: 0.9rem;
+                padding: 20px;
+            }
+            
+            .instructions li {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Responsive design para tablets */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            #notes-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Mejoras para pantallas muy pequeñas */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .note-header {
+                padding: 12px;
+            }
+            
+            .note-content {
+                padding: 12px;
+                font-size: 15px;
+            }
+            
+            .note-actions {
+                padding: 10px 12px;
+            }
+            
+            .note-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .color-options {
+                bottom: 50px;
+                right: 10px;
+                padding: 10px;
+            }
+            
+            .color-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .color-option {
+                width: 25px;
+                height: 25px;
+            }
+        }
+        
+        /* Modo retrato en móviles */
+        @media (max-height: 600px) and (max-width: 768px) {
+            header {
+                margin-bottom: 15px;
+            }
+            
+            .note {
+                min-height: 180px;
+            }
+        }
+        
+        /* Para evitar problemas de redimensionamiento en móviles */
+        .note {
+            max-width: 100%;
+        }
+        
+        /* Ajustes para navegadores móviles */
+        textarea.note-content {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Mejora de accesibilidad para elementos interactivos */
+        .btn:focus, .note-btn:focus, .color-option:focus {
+            outline: 2px solid white;
+            outline-offset: 2px;
+        }
+        
+        /* Efecto de carga inicial */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .note {
+            animation: slideIn 0.4s ease;
+        }
+        
+        /* Efecto de rotación aleatoria para notas */
+        .note {
+            transform: rotate(0deg);
+            transition: transform 0.3s ease;
+        }
+        
+        .note:hover {
+            transform: rotate(0deg) !important;
+        }
+        
+        /* Estilo para el placeholder del textarea */
+        textarea::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-button"><i class="fas fa-arrow-left"></i></a>
+        <header>
+            <div class="logo">
+                <i class="fas fa-sticky-note logo-icon"></i>
+                <h1>Postify</h1>
+            </div>
+            <p class="app-description">Crea, organiza y personaliza notas adhesivas. Totalmente responsivo para todos los dispositivos.</p>
+            
+            <div class="controls">
+                <button id="new-note-btn" class="btn">
+                    <i class="fas fa-plus"></i> Nueva Nota
+                </button>
+                <button id="clear-notes-btn" class="btn btn-secondary">
+                    <i class="fas fa-trash"></i> Limpiar Todo
+                </button>
+            </div>
+            
+            <div class="note-count" id="note-counter">0 notas creadas</div>
+        </header>
+
+        <div id="notes-container">
+            <!-- Las notas se agregarán aquí dinámicamente -->
+        </div>
+
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Cómo usar Postify:</h3>
+            <ul>
+                <li><i class="fas fa-arrows-alt"></i> <span>Arrastra desde la barra superior para mover las notas</span></li>
+                <li><i class="fas fa-expand-alt"></i> <span>Redimensiona desde la esquina inferior derecha</span></li>
+                <li><i class="fas fa-palette"></i> <span>Haz clic en "Color" para cambiar el color de la nota</span></li>
+                <li><i class="fas fa-save"></i> <span>Todos los cambios se guardan automáticamente</span></li>
+                <li><i class="fas fa-mobile-alt"></i> <span>En móvil: mantén presionado para mover</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const notesContainer = document.getElementById('notes-container');
+            const newNoteBtn = document.getElementById('new-note-btn');
+            const clearNotesBtn = document.getElementById('clear-notes-btn');
+            const noteCounter = document.getElementById('note-counter');
+            
+            // Colores disponibles para las notas
+            const colors = [
+                '#ffeb3b', // Amarillo
+                '#bb86fc', // Morado
+                '#03dac6', // Turquesa
+                '#ff7597', // Rosa
+                '#90caf9', // Azul claro
+                '#c8e6c9', // Verde claro
+                '#ffcc80', // Naranja
+                '#f8bbd0'  // Rosa claro
+            ];
+            
+            // Cargar notas desde localStorage
+            loadNotes();
+            updateNoteCounter();
+            
+            // Evento para crear una nueva nota
+            newNoteBtn.addEventListener('click', createNote);
+            
+            // Evento para limpiar todas las notas
+            clearNotesBtn.addEventListener('click', () => {
+                if (confirm('¿Estás seguro de que quieres eliminar todas las notas?')) {
+                    notesContainer.innerHTML = '';
+                    saveNotes();
+                    updateNoteCounter();
+                }
+            });
+            
+            // Función para crear una nueva nota
+            function createNote() {
+                const noteId = Date.now().toString();
+                const note = {
+                    id: noteId,
+                    content: '',
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    position: { x: 0, y: 0 },
+                    size: { width: 0, height: 0 }
+                };
+                
+                addNoteToDOM(note);
+                saveNotes();
+                updateNoteCounter();
+            }
+            
+            // Función para añadir una nota al DOM
+            function addNoteToDOM(note) {
+                const noteElement = document.createElement('div');
+                noteElement.classList.add('note');
+                noteElement.id = note.id;
+                noteElement.style.backgroundColor = note.color;
+                
+                // Aplicar rotación aleatoria para efecto visual
+                const rotation = Math.random() * 2 - 1;
+                noteElement.style.transform = `rotate(${rotation}deg)`;
+                
+                noteElement.innerHTML = `
+                    <div class="note-header">
+                        <span><i class="fas fa-grip-horizontal"></i> Postify</span>
+                        <div class="color-options">
+                            <div class="color-grid">
+                                ${colors.map(color => 
+                                    `<div class="color-option" style="background-color: ${color};" data-color="${color}"></div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <textarea class="note-content" placeholder="Escribe tu nota aquí...">${note.content}</textarea>
+                    <div class="note-actions">
+                        <button class="note-btn color-btn">
+                            <i class="fas fa-palette"></i> Color
+                        </button>
+                        <button class="note-btn delete-btn">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                `;
+                
+                notesContainer.appendChild(noteElement);
+                
+                // Configurar eventos para la nota
+                setupNoteEvents(noteElement);
+            }
+            
+            // Configurar eventos para una nota
+            function setupNoteEvents(noteElement) {
+                const header = noteElement.querySelector('.note-header');
+                const colorBtn = noteElement.querySelector('.color-btn');
+                const deleteBtn = noteElement.querySelector('.delete-btn');
+                const colorOptions = noteElement.querySelector('.color-options');
+                const textArea = noteElement.querySelector('.note-content');
+                
+                // Hacer la nota arrastrable desde la barra superior (solo en desktop)
+                let isDragging = false;
+                let startX, startY, initialX, initialY;
+                
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('color-option')) return;
+                    if (window.innerWidth <= 768) return; // No arrastrar en móviles
+                    
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialX = parseInt(window.getComputedStyle(noteElement).left);
+                    initialY = parseInt(window.getComputedStyle(noteElement).top);
+                    
+                    noteElement.style.cursor = 'grabbing';
+                    noteElement.style.zIndex = 1000; // Traer al frente
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    
+                    noteElement.style.left = `${initialX + dx}px`;
+                    noteElement.style.top = `${initialY + dy}px`;
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        noteElement.style.cursor = 'grab';
+                        noteElement.style.zIndex = ''; // Restaurar z-index
+                        saveNotes();
+                    }
+                });
+                
+                // Para dispositivos táctiles
+                header.addEventListener('touchstart', (e) => {
+                    if (e.target.classList.contains('color-option')) return;
+                    
+                    isDragging = true;
+                    const touch = e.touches[0];
+                    startX = touch.clientX;
+                    startY = touch.clientY;
+                    initialX = parseInt(window.getComputedStyle(noteElement).left);
+                    initialY = parseInt(window.getComputedStyle(noteElement).top);
+                    
+                    noteElement.style.zIndex = 1000;
+                    e.preventDefault();
+                }, { passive: false });
+                
+                document.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    
+                    const touch = e.touches[0];
+                    const dx = touch.clientX - startX;
+                    const dy = touch.clientY - startY;
+                    
+                    noteElement.style.left = `${initialX + dx}px`;
+                    noteElement.style.top = `${initialY + dy}px`;
+                    
+                    e.preventDefault();
+                }, { passive: false });
+                
+                document.addEventListener('touchend', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        noteElement.style.zIndex = '';
+                        saveNotes();
+                    }
+                });
+                
+                // Mostrar/ocultar opciones de color
+                colorBtn.addEventListener('click', () => {
+                    const isVisible = colorOptions.style.display === 'block';
+                    // Cerrar todos los selectores de color primero
+                    document.querySelectorAll('.color-options').forEach(option => {
+                        option.style.display = 'none';
+                    });
+                    
+                    if (!isVisible) {
+                        colorOptions.style.display = 'block';
+                    }
+                });
+                
+                // Cambiar color de la nota
+                colorOptions.querySelectorAll('.color-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const color = e.target.getAttribute('data-color');
+                        noteElement.style.backgroundColor = color;
+                        colorOptions.style.display = 'none';
+                        saveNotes();
+                    });
+                });
+                
+                // Cerrar selector de color al hacer clic fuera
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.color-btn') && !e.target.closest('.color-options')) {
+                        colorOptions.style.display = 'none';
+                    }
+                });
+                
+                // Eliminar nota
+                deleteBtn.addEventListener('click', () => {
+                    noteElement.remove();
+                    saveNotes();
+                    updateNoteCounter();
+                });
+                
+                // Guardar contenido cuando cambia
+                textArea.addEventListener('input', () => {
+                    saveNotes();
+                });
+                
+                // Guardar tamaño cuando cambia
+                noteElement.addEventListener('mouseup', () => {
+                    saveNotes();
+                });
+                
+                noteElement.addEventListener('touchend', () => {
+                    saveNotes();
+                });
+            }
+            
+            // Guardar todas las notas en localStorage
+            function saveNotes() {
+                const notes = [];
+                document.querySelectorAll('.note').forEach(noteElement => {
+                    const note = {
+                        id: noteElement.id,
+                        content: noteElement.querySelector('.note-content').value,
+                        color: noteElement.style.backgroundColor,
+                        position: {
+                            x: parseInt(noteElement.style.left) || 0,
+                            y: parseInt(noteElement.style.top) || 0
+                        },
+                        size: {
+                            width: parseInt(noteElement.style.width) || 0,
+                            height: parseInt(noteElement.style.height) || 0
+                        }
+                    };
+                    notes.push(note);
+                });
+                
+                localStorage.setItem('postifyNotes', JSON.stringify(notes));
+            }
+            
+            // Cargar notas desde localStorage
+            function loadNotes() {
+                const savedNotes = JSON.parse(localStorage.getItem('postifyNotes')) || [];
+                savedNotes.forEach(note => {
+                    addNoteToDOM(note);
+                });
+            }
+            
+            // Actualizar contador de notas
+            function updateNoteCounter() {
+                const noteCount = document.querySelectorAll('.note').length;
+                noteCounter.textContent = `${noteCount} ${noteCount === 1 ? 'nota' : 'notas'} creada${noteCount === 1 ? '' : 's'}`;
+            }
+        });
+    </script>
+</body>
+</html>

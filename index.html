@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kairoz - Suite de Aplicaciones</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dee2e6;
+            --sidebar-width: 250px;
+        }
+
+        .dark-mode {
+            --primary: #5e72e4;
+            --primary-light: #7b86eb;
+            --secondary: #4a3fb5;
+            --accent: #63d3ff;
+            --success: #5cb85c;
+            --warning: #f0ad4e;
+            --danger: #d9534f;
+            --light: #2d3748;
+            --dark: #c5cee0;
+            --gray: #8c9bbd;
+            --light-gray: #222b45;
+            --background: #1a2035;
+            --card-bg: #222b45;
+            --text-color: #e2e8f0;
+            --border-color: #2d3a5a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            width: 24px;
+        }
+
+        .subscription-status {
+            margin-top: 30px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .subscription-status h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .theme-switch {
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            gap: 8px;
+        }
+
+        .theme-switch span {
+            font-weight: 600;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.07);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .app-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .app-description {
+            color: var(--gray);
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .app-preview {
+            height: 180px;
+            background: var(--light);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-content {
+            width: 100%;
+            height: 100%;
+            padding: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Previsualización para Postify */
+        .preview-postify {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 10px;
+        }
+
+        .preview-note {
+            background: linear-gradient(135deg, #ffeb3b, #ffc107);
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transform: rotate(-2deg);
+        }
+
+        .preview-note:nth-child(2) {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            transform: rotate(1deg);
+        }
+
+        .preview-note:nth-child(3) {
+            background: linear-gradient(135deg, #aed581, #7cb342);
+            transform: rotate(-1deg);
+        }
+
+        /* Previsualización para Daree */
+        .preview-daree {
+            padding: 15px;
+        }
+
+        .preview-task {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .preview-task input {
+            margin-right: 8px;
+        }
+
+        .preview-task.completed {
+            color: var(--success);
+            text-decoration: line-through;
+        }
+
+        /* Previsualización para Taskee */
+        .preview-taskee {
+            padding: 15px;
+            background: #f5f5f5;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .dark-mode .preview-taskee {
+            background: #2a2a2a;
+        }
+
+        .preview-date {
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        /* Previsualización para Calcify */
+        .preview-calcify {
+            padding: 15px;
+            background: #000;
+            color: white;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .preview-display {
+            background: #1a1a1a;
+            padding: 10px;
+            text-align: right;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .preview-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+
+        .preview-button {
+            background: #333;
+            border: none;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .preview-button.operator {
+            background: #ff9500;
+        }
+
+        /* Previsualización para Lockify */
+        .preview-lockify {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-password {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            letter-spacing: 1px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .dark-mode .preview-password {
+            background: #2a2a2a;
+        }
+
+        .preview-slider {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .preview-checkboxes {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        /* Previsualización para Planify */
+        .preview-planify {
+            padding: 10px;
+        }
+
+        .preview-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            font-size: 10px;
+        }
+
+        .preview-day {
+            text-align: center;
+            padding: 5px 0;
+            border-radius: 3px;
+        }
+
+        .preview-day.header {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .preview-day.event {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        /* Previsualización para Arcadito */
+        .preview-arcadito {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-game {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px;
+            width: 100px;
+            height: 100px;
+            background: #333;
+            margin-bottom: 10px;
+        }
+
+        .preview-cell {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .dark-mode .preview-cell {
+            background: #444;
+        }
+
+        /* Previsualización para Spendly */
+        .preview-spendly {
+            padding: 15px;
+        }
+
+        .preview-chart {
+            height: 70px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .preview-bar {
+            flex: 1;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .preview-bar.income {
+            background: var(--success);
+        }
+
+        .preview-bar.expense {
+            background: var(--danger);
+        }
+
+        .preview-transactions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .preview-transaction {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Previsualización para Memefy */
+        .preview-memefy {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+        }
+
+        .dark-mode .preview-memefy {
+            background: #2a2a2a;
+        }
+
+        .preview-meme {
+            width: 90%;
+            height: 70%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid white;
+        }
+
+        .preview-meme-text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: white;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+        }
+
+        .preview-meme-text.top {
+            top: 10px;
+        }
+
+        .preview-meme-text.bottom {
+            bottom: 10px;
+        }
+
+        /* Previsualización para Quizzy */
+        .preview-quizzy {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-flashcard {
+            width: 100%;
+            height: 100px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 15px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .preview-flashcard-inner {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .preview-flashcard:hover .preview-flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .preview-flashcard-front, .preview-flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backfaceVisibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .preview-flashcard-back {
+            background: var(--accent);
+            transform: rotateY(180deg);
+        }
+
+        .app-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .app-button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .open-app {
+            background: var(--primary);
+            color: white;
+        }
+
+        .open-app:hover {
+            background: var(--secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .apps-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 15px 10px;
+            }
+            
+            .logo h1, .nav-item span, .subscription-status {
+                display: none;
+            }
+            
+            .logo {
+                justify-content: center;
+            }
+            
+            .nav-item {
+                justify-content: center;
+                padding: 12px;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+                padding: 20px;
+            }
+            
+            .apps-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-compass"></i>
+            <h1>Kairoz</h1>
+        </div>
+        
+        <div class="nav-item active" data-section="dashboard">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+        </div>
+        
+        <div class="nav-item" data-section="apps">
+            <i class="fas fa-layer-group"></i>
+            <span>Todas las Apps</span>
+        </div>
+        
+        <div class="nav-item" data-section="settings">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+        </div>
+        
+        <div class="subscription-status">
+            <h3>Plan Completo</h3>
+            <p>Todas las apps disponibles</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h2 class="dashboard-title">Dashboard de Aplicaciones</h2>
+            <div class="theme-switch" id="theme-switch">
+                <i class="fas fa-moon"></i>
+                <span>Modo Oscuro</span>
+            </div>
+        </div>
+        
+        <div class="apps-grid">
+            <!-- App 1: Postify (Notas) -->
+            <div class="app-card" data-app="postify" data-folder="Postify">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-sticky-note"></i>
+                    </div>
+                    <h3 class="app-title">Postify</h3>
+                </div>
+                <p class="app-description">Crea notas tipo post-its, cambia su color y posición. Todo se guarda automáticamente.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-postify">
+                        <div class="preview-note">Comprar leche</div>
+                        <div class="preview-note">Llamar a Juan</div>
+                        <div class="preview-note">Reunión 15:00</div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="postify" data-folder="Postify">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 2: Daree (To-Do) -->
+            <div class="app-card" data-app="daree" data-folder="Daree">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3 class="app-title">Daree</h3>
+                </div>
+                <p class="app-description">Organiza tus tareas diarias, marca completadas y filtra por estado.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-daree">
+                        <div class="preview-task completed">
+                            <input type="checkbox" checked> Diseñar logo
+                        </div>
+                        <div class="preview-task">
+                            <input type="checkbox"> Revisar código
+                        </div>
+                        <div class="preview-task">
+                            <input type="checkbox"> Enviar emails
+                        </div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="daree" data-folder="Daree">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 3: Taskee (Diario) -->
+            <div class="app-card" data-app="taskee" data-folder="Taskee">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3 class="app-title">Taskee</h3>
+                </div>
+                <p class="app-description">Escribe tus pensamientos y reflexiones. Guardado automático y exportación.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-taskee">
+                        <div class="preview-date">15 Marzo 2023</div>
+                        <div>Hoy fue un día productivo. Terminé el proyecto principal y aprendí varias cosas nuevas sobre CSS.</div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="taskee" data-folder="Taskee">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 4: Calcify (Calculadora) -->
+            <div class="app-card" data-app="calcify" data-folder="Calcify">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="app-title">Calcify</h3>
+                </div>
+                <p class="app-description">Calculadora científica con historial y funciones avanzadas.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-calcify">
+                        <div class="preview-display">126.5</div>
+                        <div class="preview-buttons">
+                            <div class="preview-button">7</div>
+                            <div class="preview-button">8</div>
+                            <div class="preview-button">9</div>
+                            <div class="preview-button operator">÷</div>
+                            <div class="preview-button">4</div>
+                            <div class="preview-button">5</div>
+                            <div class="preview-button">6</div>
+                            <div class="preview-button operator">×</div>
+                            <div class="preview-button">1</div>
+                            <div class="preview-button">2</div>
+                            <div class="preview-button">3</div>
+                            <div class="preview-button operator">-</div>
+                            <div class="preview-button">0</div>
+                            <div class="preview-button">.</div>
+                            <div class="preview-button operator">=</div>
+                            <div class="preview-button operator">+</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="calcify" data-folder="Calcify">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 5: Lockify (Generador de Contraseñas) -->
+            <div class="app-card" data-app="lockify" data-folder="Lockify">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3 class="app-title">Lockify</h3>
+                </div>
+                <p class="app-description">Genera contraseñas seguras con varios parámetros. Almacenamiento local.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-lockify">
+                        <div class="preview-password">T7#pL9$qW2!</div>
+                        <div class="preview-slider"></div>
+                        <div class="preview-checkboxes">
+                            <div>ABC</div>
+                            <div>123</div>
+                            <div>#%&</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="lockify" data-folder="Lockify">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 6: Planify (Agenda/Calendario) -->
+            <div class="app-card" data-app="planify" data-folder="Planify">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <h3 class="app-title">Planify</h3>
+                </div>
+                <p class="app-description">Calendario offline con eventos y recordatorios. Arrastra y crea eventos fácilmente.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-planify">
+                        <div class="preview-calendar">
+                            <div class="preview-day header">L</div>
+                            <div class="preview-day header">M</div>
+                            <div class="preview-day header">M</div>
+                            <div class="preview-day header">J</div>
+                            <div class="preview-day header">V</div>
+                            <div class="preview-day header">S</div>
+                            <div class="preview-day header">D</div>
+                            <div class="preview-day"></div>
+                            <div class="preview-day"></div>
+                            <div class="preview-day">1</div>
+                            <div class="preview-day">2</div>
+                            <div class="preview-day">3</div>
+                            <div class="preview-day event">4</div>
+                            <div class="preview-day">5</div>
+                            <div class="preview-day">6</div>
+                            <div class="preview-day">7</div>
+                            <div class="preview-day event">8</div>
+                            <div class="preview-day">9</div>
+                            <div class="preview-day">10</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="planify" data-folder="Planify">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 7: Arcadito (Juegos) -->
+            <div class="app-card" data-app="arcadito" data-folder="Arcadito">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3 class="app-title">Arcadito</h3>
+                </div>
+                <p class="app-description">Juegos clásicos como Tres en Raya, Memorama y Snake. Progreso guardado.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-arcadito">
+                        <div class="preview-game">
+                            <div class="preview-cell">X</div>
+                            <div class="preview-cell">O</div>
+                            <div class="preview-cell">X</div>
+                            <div class="preview-cell"></div>
+                            <div class="preview-cell">O</div>
+                            <div class="preview-cell"></div>
+                            <div class="preview-cell">X</div>
+                            <div class="preview-cell"></div>
+                            <div class="preview-cell">O</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="arcadito" data-folder="Arcadito">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 8: Spendly (Finanzas Personales) -->
+            <div class="app-card" data-app="spendly" data-folder="Spendly">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h3 class="app-title">Spendly</h3>
+                </div>
+                <p class="app-description">Registra ingresos y gastos, visualiza con gráficos. Todo offline.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-spendly">
+                        <div class="preview-chart">
+                            <div class="preview-bar income" style="height: 80%"></div>
+                            <div class="preview-bar expense" style="height: 45%"></div>
+                            <div class="preview-bar expense" style="height: 60%"></div>
+                            <div class="preview-bar income" style="height: 70%"></div>
+                        </div>
+                        <div class="preview-transactions">
+                            <div class="preview-transaction">
+                                <span>Salario</span>
+                                <span style="color: var(--success)">+$2,500</span>
+                            </div>
+                            <div class="preview-transaction">
+                                <span>Comida</span>
+                                <span style="color: var(--danger)">-$150</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="spendly" data-folder="Spendly">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App Weathery -->
+            <div class="app-card" data-app="weathery" data-folder="Weathery">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <h3 class="app-title">Weathery</h3>
+                </div>
+                <p class="app-description">Check the current weather in your location.</p>
+                <div class="app-preview">
+                    <div class="preview-content">
+                        <!-- Weathery Preview -->
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="weathery" data-folder="Weathery">Abrir App</button>
+                </div>
+            </div>
+
+            <!-- App Convertify -->
+            <div class="app-card" data-app="convertify" data-folder="Convertify">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h3 class="app-title">Convertify</h3>
+                </div>
+                <p class="app-description">A simple unit converter.</p>
+                <div class="app-preview">
+                    <div class="preview-content">
+                        <!-- Convertify Preview -->
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="convertify" data-folder="Convertify">Abrir App</button>
+                </div>
+            </div>
+
+            <!-- App Drawify -->
+            <div class="app-card" data-app="drawify" data-folder="Drawify">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3 class="app-title">Drawify</h3>
+                </div>
+                <p class="app-description">A simple drawing board.</p>
+                <div class="app-preview">
+                    <div class="preview-content">
+                        <!-- Drawify Preview -->
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="drawify" data-folder="Drawify">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 9: Memefy (Generador de Memes) -->
+            <div class="app-card" data-app="memefy" data-folder="Memefy">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-laugh"></i>
+                    </div>
+                    <h3 class="app-title">Memefy</h3>
+                </div>
+                <p class="app-description">Crea memes personalizados. Sube imágenes y añade texto. Descarga directa.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-memefy">
+                        <div class="preview-meme">
+                            <div class="preview-meme-text top">CUANDO ENCUENTRAS</div>
+                            <div class="preview-meme-text bottom">EL ERROR EN TU CÓDIGO</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="memefy" data-folder="Memefy">Abrir App</button>
+                </div>
+            </div>
+            
+            <!-- App 10: Quizzy (Flashcards) -->
+            <div class="app-card" data-app="quizzy" data-folder="Quizzy">
+                <div class="app-card-header">
+                    <div class="app-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="app-title">Quizzy</h3>
+                </div>
+                <p class="app-description">Crea tarjetas de estudio para aprender vocabulario. Modo repaso aleatorio.</p>
+                <div class="app-preview">
+                    <div class="preview-content preview-quizzy">
+                        <div class="preview-flashcard">
+                            <div class="preview-flashcard-inner">
+                                <div class="preview-flashcard-front">
+                                    ¿Cómo se dice "hola" en inglés?
+                                </div>
+                                <div class="preview-flashcard-back">
+                                    Hello
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-actions">
+                    <button class="app-button open-app" data-app="quizzy" data-folder="Quizzy">Abrir App</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado de la aplicación
+        const appState = {
+            currentPlan: 'premium', // Todas las apps están disponibles
+            unlockedApps: ['postify', 'daree', 'taskee', 'calcify', 'lockify', 'planify', 'arcadito', 'spendly', 'memefy', 'quizzy']
+        };
+
+        // Mapeo de aplicaciones a carpetas
+        const appFolders = {
+            'postify': 'Postify',
+            'daree': 'Daree',
+            'taskee': 'Taskee',
+            'calcify': 'Calcify',
+            'lockify': 'Lockify',
+            'planify': 'Planify',
+            'arcadito': 'Arcadito',
+            'spendly': 'Spendly',
+            'memefy': 'Memefy',
+            'quizzy': 'Quizzy'
+        };
+
+        // Inicializar la aplicación
+        function init() {
+            // Configurar event listeners
+            setupEventListeners();
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Cambio de tema
+            const themeSwitch = document.getElementById('theme-switch');
+            themeSwitch.addEventListener('click', toggleTheme);
+            
+            // Navegación
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const section = item.getAttribute('data-section');
+                    switchSection(section);
+                });
+            });
+            
+            // Botones de abrir app
+            const appButtons = document.querySelectorAll('.open-app');
+            appButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const app = e.target.getAttribute('data-app');
+                    const folder = e.target.getAttribute('data-folder');
+                    openApp(app, folder);
+                });
+            });
+        }
+
+        // Alternar tema claro/oscuro
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeIcon = document.querySelector('.theme-switch i');
+            const themeText = document.querySelector('.theme-switch span');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                themeText.textContent = 'Modo Claro';
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                themeText.textContent = 'Modo Oscuro';
+            }
+        }
+
+        // Cambiar de sección
+        function switchSection(section) {
+            // Actualizar navegación
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('data-section') === section) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Aquí iría la lógica para mostrar diferentes secciones
+            console.log(`Cambiando a sección: ${section}`);
+        }
+
+        // Abrir aplicación
+        function openApp(app, folder) {
+            // Redirigir a la carpeta de la aplicación
+            window.location.href = `${folder}/index.html`;
+        }
+
+        // Inicializar la aplicación
+        init();
+    </script>
+</body>
+</html>

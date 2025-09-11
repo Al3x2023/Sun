@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizzy - Flashcards de Vocabulario</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dee2e6;
+        }
+
+        .dark-mode {
+            --primary: #5e72e4;
+            --primary-light: #7b86eb;
+            --secondary: #4a3fb5;
+            --accent: #63d3ff;
+            --success: #5cb85c;
+            --warning: #f0ad4e;
+            --danger: #d9534f;
+            --light: #2d3748;
+            --dark: #c5cee0;
+            --gray: #8c9bbd;
+            --light-gray: #222b45;
+            --background: #1a2035;
+            --card-bg: #222b45;
+            --text-color: #e2e8f0;
+            --border-color: #2d3a5a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-to-menu-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-to-menu-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .back-button-main {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: var(--primary);
+            text-decoration: none;
+            z-index: 1000;
+        }
+
+        .back-button-main:hover {
+            transform: scale(1.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .theme-switch {
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            gap: 8px;
+        }
+
+        .theme-switch span {
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-button i {
+            font-size: 18px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.07);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 i {
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        input, textarea, select, button {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--light);
+            color: var(--text-color);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background-color: #3ba0d0;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background-color: #3d8b40;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .flashcards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .flashcard {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .flashcard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .flashcard.flipped {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .flashcard-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .flashcard-actions button {
+            width: auto;
+            padding: 5px 10px;
+            margin: 0;
+        }
+
+        .study-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        .study-card {
+            width: 100%;
+            max-width: 500px;
+            min-height: 300px;
+            background: var(--light);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .study-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .study-card.flipped .study-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .study-card-front, .study-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .study-card-front {
+            background-color: var(--light);
+            color: var(--text-color);
+        }
+
+        .study-card-back {
+            background-color: var(--primary);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .study-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--light-gray);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .flashcards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stat-item {
+                margin: 5px 0;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-color);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-button-main"><i class="fas fa-arrow-left"></i></a>
+        <header>
+            <div class="header-left">
+
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>Quizzy</h1>
+                </div>
+            </div>
+            <div class="theme-switch" id="theme-switch">
+                <i class="fas fa-moon"></i>
+                <span>Modo Oscuro</span>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="create">
+                <i class="fas fa-plus-circle"></i> Crear Flashcards
+            </button>
+            <button class="tab-button" data-tab="study">
+                <i class="fas fa-book"></i> Modo Estudio
+            </button>
+            <button class="tab-button" data-tab="review">
+                <i class="fas fa-sync-alt"></i> Repaso Aleatorio
+            </button>
+        </div>
+
+        <!-- Pestaña de Creación -->
+        <div id="create" class="tab-content active">
+            <div class="card">
+                <h2><i class="fas fa-plus-circle"></i> Crear Nueva Flashcard</h2>
+                <form id="flashcardForm">
+                    <div class="form-group">
+                        <label for="question">Pregunta / Término:</label>
+                        <input type="text" id="question" placeholder="Ej: ¿Cómo se dice 'hola' en inglés?" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="answer">Respuesta / Definición:</label>
+                        <textarea id="answer" placeholder="Ej: Hello" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Categoría (opcional):</label>
+                        <input type="text" id="category" placeholder="Ej: Inglés Básico">
+                    </div>
+                    <button type="submit"><i class="fas fa-save"></i> Guardar Flashcard</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-list"></i> Tus Flashcards</h2>
+                <div id="stats" class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="studiedCount">0</div>
+                        <div class="stat-label">Estudiadas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="masteredCount">0</div>
+                        <div class="stat-label">Dominadas</div>
+                    </div>
+                </div>
+                <div id="flashcardsList" class="flashcards-grid">
+                    <!-- Las flashcards se insertarán aquí dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña de Estudio -->
+        <div id="study" class="tab-content" style="display: none;">
+            <div class="card">
+                <h2><i class="fas fa-book"></i> Modo Estudio</h2>
+                <div class="progress-bar">
+                    <div class="progress" id="studyProgress" style="width: 0%"></div>
+                </div>
+                <div class="study-container">
+                    <div class="study-card" id="studyCard">
+                        <div class="study-card-inner">
+                            <div class="study-card-front">
+                                <div id="studyQuestion">No hay flashcards disponibles. Crea algunas primero.</div>
+                            </div>
+                            <div class="study-card-back">
+                                <div id="studyAnswer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="study-controls">
+                        <button id="prevCard" class="btn-secondary"><i class="fas fa-arrow-left"></i> Anterior</button>
+                        <button id="nextCard" class="btn-secondary">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <div class="study-controls">
+                        <button id="markDifficult" class="btn-danger"><i class="fas fa-times-circle"></i> Difícil</button>
+                        <button id="markKnown" class="btn-success"><i class="fas fa-check-circle"></i> Sé esto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña de Repaso Aleatorio -->
+        <div id="review" class="tab-content" style="display: none;">
+            <div class="card">
+                <h2><i class="fas fa-sync-alt"></i> Repaso Aleatorio</h2>
+                <div class="progress-bar">
+                    <div class="progress" id="reviewProgress" style="width: 0%"></div>
+                </div>
+                <div class="study-container">
+                    <div class="study-card" id="reviewCard">
+                        <div class="study-card-inner">
+                            <div class="study-card-front">
+                                <div id="reviewQuestion">No hay flashcards para repasar. Crea algunas primero.</div>
+                            </div>
+                            <div class="study-card-back">
+                                <div id="reviewAnswer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="study-controls">
+                        <button id="flipCard" class="btn-secondary"><i class="fas fa-sync-alt"></i> Voltear</button>
+                        <button id="nextRandom" class="btn-secondary">Siguiente <i class="fas fa-random"></i></button>
+                    </div>
+                    <div class="study-controls">
+                        <button id="markIncorrect" class="btn-danger"><i class="fas fa-times-circle"></i> Incorrecto</button>
+                        <button id="markCorrect" class="btn-success"><i class="fas fa-check-circle"></i> Correcto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Quizzy - Tu compañero para estudiar vocabulario</p>
+            <p>© 2023 Quizzy | Tu progreso se guarda automáticamente</p>
+        </footer>
+    </div>
+
+    <script>
+        // Variables globales
+        let flashcards = [];
+        let currentStudyIndex = 0;
+        let currentReviewIndex = 0;
+
+        // Elementos del DOM
+        const backButton = document.getElementById('backButton');
+        const themeSwitch = document.getElementById('theme-switch');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const flashcardForm = document.getElementById('flashcardForm');
+        const flashcardsList = document.getElementById('flashcardsList');
+        const studyCard = document.getElementById('studyCard');
+        const reviewCard = document.getElementById('reviewCard');
+        const studyQuestion = document.getElementById('studyQuestion');
+        const studyAnswer = document.getElementById('studyAnswer');
+        const reviewQuestion = document.getElementById('reviewQuestion');
+        const reviewAnswer = document.getElementById('reviewAnswer');
+        const prevCardBtn = document.getElementById('prevCard');
+        const nextCardBtn = document.getElementById('nextCard');
+        const flipCardBtn = document.getElementById('flipCard');
+        const markDifficultBtn = document.getElementById('markDifficult');
+        const markKnownBtn = document.getElementById('markKnown');
+        const markIncorrectBtn = document.getElementById('markIncorrect');
+        const markCorrectBtn = document.getElementById('markCorrect');
+        const studyProgress = document.getElementById('studyProgress');
+        const reviewProgress = document.getElementById('reviewProgress');
+        const totalCount = document.getElementById('totalCount');
+        const studiedCount = document.getElementById('studiedCount');
+        const masteredCount = document.getElementById('masteredCount');
+
+        // Inicializar la aplicación
+        function init() {
+            // Cargar flashcards desde localStorage
+            loadFlashcards();
+            
+            // Configurar event listeners
+            setupEventListeners();
+            
+            // Actualizar la interfaz
+            updateUI();
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Botón de volver atrás
+            backButton.addEventListener('click', goBackToDashboard);
+            
+            // Cambio de tema
+            themeSwitch.addEventListener('click', toggleTheme);
+            
+            // Cambio de pestañas
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.getAttribute('data-tab');
+                    switchTab(tab);
+                });
+            });
+            
+            // Formulario de flashcard
+            flashcardForm.addEventListener('submit', handleFormSubmit);
+            
+            // Controles de estudio
+            studyCard.addEventListener('click', flipStudyCard);
+            reviewCard.addEventListener('click', flipReviewCard);
+            prevCardBtn.addEventListener('click', showPreviousCard);
+            nextCardBtn.addEventListener('click', showNextCard);
+            flipCardBtn.addEventListener('click', flipReviewCard);
+            nextRandomBtn.addEventListener('click', showRandomCard);
+            markDifficultBtn.addEventListener('click', () => markCardStatus('difficult'));
+            markKnownBtn.addEventListener('click', () => markCardStatus('known'));
+            markIncorrectBtn.addEventListener('click', () => markReviewCard('incorrect'));
+            markCorrectBtn.addEventListener('click', () => markReviewCard('correct'));
+        }
+
+        // Función para volver al dashboard de Kairoz
+        function goBackToDashboard() {
+            // Verificar si estamos en un subdirectorio o en la raíz
+            if (window.location.pathname.includes('/Quizzy/')) {
+                window.location.href = '../index.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Cargar flashcards desde localStorage
+        function loadFlashcards() {
+            const savedFlashcards = localStorage.getItem('quizzyFlashcards');
+            if (savedFlashcards) {
+                flashcards = JSON.parse(savedFlashcards);
+            }
+        }
+
+        // Guardar flashcards en localStorage
+        function saveFlashcards() {
+            localStorage.setItem('quizzyFlashcards', JSON.stringify(flashcards));
+        }
+
+        // Alternar tema claro/oscuro
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeIcon = themeSwitch.querySelector('i');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                themeSwitch.querySelector('span').textContent = 'Modo Claro';
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                themeSwitch.querySelector('span').textContent = 'Modo Oscuro';
+            }
+        }
+
+        // Cambiar de pestaña
+        function switchTab(tabName) {
+            // Actualizar botones de pestañas
+            tabButtons.forEach(button => {
+                if (button.getAttribute('data-tab') === tabName) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+            
+            // Mostrar contenido de la pestaña seleccionada
+            tabContents.forEach(content => {
+                if (content.id === tabName) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+            
+            // Si es la pestaña de estudio, cargar la primera flashcard
+            if (tabName === 'study') {
+                currentStudyIndex = 0;
+                loadStudyCard();
+            }
+            
+            // Si es la pestaña de repaso, cargar una flashcard aleatoria
+            if (tabName === 'review') {
+                showRandomCard();
+            }
+        }
+
+        // Manejar envío del formulario
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const questionInput = document.getElementById('question');
+            const answerInput = document.getElementById('answer');
+            const categoryInput = document.getElementById('category');
+            
+            const newFlashcard = {
+                id: Date.now(),
+                question: questionInput.value,
+                answer: answerInput.value,
+                category: categoryInput.value || 'General',
+                studied: false,
+                mastered: false,
+                difficulty: 'neutral', // neutral, difficult, easy
+                lastReviewed: null,
+                reviewCount: 0
+            };
+            
+            flashcards.push(newFlashcard);
+            saveFlashcards();
+            updateUI();
+            
+            // Reiniciar formulario
+            flashcardForm.reset();
+            
+            // Mostrar mensaje de éxito
+            alert('Flashcard creada correctamente!');
+        }
+
+        // Actualizar la interfaz de usuario
+        function updateUI() {
+            updateFlashcardsList();
+            updateStats();
+        }
+
+        // Actualizar la lista de flashcards
+        function updateFlashcardsList() {
+            flashcardsList.innerHTML = '';
+            
+            if (flashcards.length === 0) {
+                flashcardsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No tienes flashcards todavía</p>
+                        <p>Crea tu primera flashcard para comenzar</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            flashcards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'flashcard';
+                cardElement.innerHTML = `
+                    <div class="flashcard-actions">
+                        <button class="btn-danger btn-sm" data-id="${card.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="flashcard-content">
+                        <h3>${card.question}</h3>
+                        <p><small>Categoría: ${card.category}</small></p>
+                    </div>
+                `;
+                
+                // Event listener para eliminar flashcard
+                const deleteBtn = cardElement.querySelector('button');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteFlashcard(card.id);
+                });
+                
+                // Event listener para voltear la flashcard
+                cardElement.addEventListener('click', () => {
+                    cardElement.classList.toggle('flipped');
+                    if (cardElement.classList.contains('flipped')) {
+                        cardElement.querySelector('.flashcard-content h3').textContent = card.answer;
+                    } else {
+                        cardElement.querySelector('.flashcard-content h3').textContent = card.question;
+                    }
+                });
+                
+                flashcardsList.appendChild(cardElement);
+            });
+        }
+
+        // Eliminar una flashcard
+        function deleteFlashcard(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta flashcard?')) {
+                flashcards = flashcards.filter(card => card.id !== id);
+                saveFlashcards();
+                updateUI();
+                
+                // Si estamos en modo estudio, actualizar la tarjeta actual
+                if (document.getElementById('study').style.display === 'block') {
+                    loadStudyCard();
+                }
+            }
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            const total = flashcards.length;
+            const studied = flashcards.filter(card => card.studied).length;
+            const mastered = flashcards.filter(card => card.mastered).length;
+            
+            totalCount.textContent = total;
+            studiedCount.textContent = studied;
+            masteredCount.textContent = mastered;
+            
+            // Actualizar barras de progreso
+            studyProgress.style.width = total > 0 ? `${(studied / total) * 100}%` : '0%';
+            reviewProgress.style.width = total > 0 ? `${(mastered / total) * 100}%` : '0%';
+        }
+
+        // Cargar tarjeta de estudio
+        function loadStudyCard() {
+            if (flashcards.length === 0) {
+                studyQuestion.textContent = 'No hay flashcards disponibles. Crea algunas primero.';
+                studyAnswer.textContent = '';
+                studyCard.classList.remove('flipped');
+                return;
+            }
+            
+            if (currentStudyIndex >= flashcards.length) {
+                currentStudyIndex = 0;
+            }
+            
+            const card = flashcards[currentStudyIndex];
+            studyQuestion.textContent = card.question;
+            studyAnswer.textContent = card.answer;
+            studyCard.classList.remove('flipped');
+        }
+
+        // Voltear tarjeta de estudio
+        function flipStudyCard() {
+            studyCard.classList.toggle('flipped');
+        }
+
+        // Mostrar tarjeta anterior
+        function showPreviousCard() {
+            if (flashcards.length === 0) return;
+            
+            currentStudyIndex--;
+            if (currentStudyIndex < 0) {
+                currentStudyIndex = flashcards.length - 1;
+            }
+            
+            loadStudyCard();
+        }
+
+        // Mostrar siguiente tarjeta
+        function showNextCard() {
+            if (flashcards.length === 0) return;
+            
+            currentStudyIndex++;
+            if (currentStudyIndex >= flashcards.length) {
+                currentStudyIndex = 0;
+            }
+            
+            loadStudyCard();
+        }
+
+        // Marcar tarjeta como difícil o conocida
+        function markCardStatus(status) {
+            if (flashcards.length === 0) return;
+            
+            const card = flashcards[currentStudyIndex];
+            card.studied = true;
+            
+            if (status === 'difficult') {
+                card.difficulty = 'difficult';
+                card.mastered = false;
+            } else if (status === 'known') {
+                card.difficulty = 'easy';
+                card.mastered = true;
+            }
+            
+            card.lastReviewed = new Date().toISOString();
+            card.reviewCount++;
+            
+            saveFlashcards();
+            updateStats();
+            showNextCard();
+        }
+
+        // Mostrar tarjeta aleatoria
+        function showRandomCard() {
+            if (flashcards.length === 0) {
+                reviewQuestion.textContent = 'No hay flashcards para repasar. Crea algunas primero.';
+                reviewAnswer.textContent = '';
+                reviewCard.classList.remove('flipped');
+                return;
+            }
+            
+            // Priorizar tarjetas difíciles o no estudiadas
+            const difficultCards = flashcards.filter(card => card.difficulty === 'difficult' || !card.studied);
+            const cardsToUse = difficultCards.length > 0 ? difficultCards : flashcards;
+            
+            currentReviewIndex = Math.floor(Math.random() * cardsToUse.length);
+            const card = cardsToUse[currentReviewIndex];
+            
+            reviewQuestion.textContent = card.question;
+            reviewAnswer.textContent = card.answer;
+            reviewCard.classList.remove('flipped');
+        }
+
+        // Voltear tarjeta de repaso
+        function flipReviewCard() {
+            reviewCard.classList.toggle('flipped');
+        }
+
+        // Marcar tarjeta de repaso como correcta o incorrecta
+        function markReviewCard(result) {
+            if (flashcards.length === 0) return;
+            
+            // Encontrar el índice real de la tarjeta en el array principal
+            const card = flashcards.find(c => c.id === flashcards[currentReviewIndex].id);
+            if (!card) return;
+            
+            card.studied = true;
+            card.lastReviewed = new Date().toISOString();
+            card.reviewCount++;
+            
+            if (result === 'correct') {
+                card.difficulty = 'easy';
+                card.mastered = true;
+            } else {
+                card.difficulty = 'difficult';
+                card.mastered = false;
+            }
+            
+            saveFlashcards();
+            updateStats();
+            showRandomCard();
+        }
+
+        // Inicializar la aplicación
+        init();
+    </script>
+</body>
+</html>

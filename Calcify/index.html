@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcify - Calculadora Científica Multidimensional</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #48bb78;
+            --secondary-color: #4299e1;
+            --bg-dark: #1a202c;
+            --bg-medium: #2d3748;
+            --text-light: #e2e8f0;
+            --text-medium: #a0aec0;
+            --accent-red: #f56565;
+            --accent-purple: #9f7aea;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b, #475569);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-light);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                padding: 30px;
+            }
+            .calculator, .history-panel, .graph-panel {
+                grid-column: 1;
+            }
+            .history-panel {
+                grid-row: 2;
+            }
+            .graph-panel {
+                grid-row: 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+        }
+
+        .calculator, .history-panel, .graph-panel {
+            background: var(--bg-medium);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculator:hover, .history-panel:hover, .graph-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .calculator h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: var(--primary-color);
+            text-decoration: none;
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+        .calculator h1::before {
+            content: '🧮';
+            font-size: 1.5rem;
+        }
+
+        .display {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .expression {
+            font-size: 1.2rem;
+            color: var(--text-medium);
+            min-height: 28px;
+        }
+
+        .result {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 15px 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .number {
+            background: linear-gradient(135deg, var(--bg-dark), #2d3748);
+            border: 1px solid var(--bg-medium);
+        }
+
+        .operator {
+            background: linear-gradient(135deg, #f6ad55, #ed8936);
+            color: #1a202c;
+        }
+
+        .function {
+            background: linear-gradient(135deg, var(--secondary-color), #60a5fa);
+        }
+
+        .variable {
+            background: linear-gradient(135deg, #68d391, #34d399);
+            color: #1a202c;
+        }
+
+        .equals {
+            background: linear-gradient(135deg, var(--primary-color), #34d399);
+            grid-column: span 2;
+        }
+
+        .clear {
+            background: linear-gradient(135deg, var(--accent-red), #ef4444);
+        }
+
+        .graph-btn {
+            background: linear-gradient(135deg, var(--accent-purple), #805ad5);
+        }
+
+        .history-panel h2, .graph-panel h2 {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: var(--bg-medium);
+            border-radius: 12px;
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-width: 6px;
+        }
+
+        .history-expression {
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            font-family: monospace;
+        }
+
+        .history-result {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: var(--text-medium);
+            opacity: 0.8;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .history-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .history-btn:hover {
+            background: var(--accent-red);
+        }
+
+        .graph-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .graph-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .graph-controls input, .graph-controls select {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            font-size: 1rem;
+            width: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .graph-controls input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+
+        .graph-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent-purple), #805ad5);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .graph-controls button:hover {
+            transform: scale(1.05);
+        }
+
+        .graph-controls label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        #graph-canvas {
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dimension-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .dimension-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .dimension-btn.active {
+            background: linear-gradient(135deg, var(--accent-purple), #805ad5);
+            box-shadow: 0 0 10px rgba(159, 122, 234, 0.5);
+        }
+
+        .dimension-btn:hover {
+            background: var(--accent-purple);
+        }
+
+        .keyboard-hint {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            text-align: center;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: var(--text-light);
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button"><i class="fas fa-arrow-left"></i></a>
+    <div class="container">
+        <div class="calculator">
+            <h1>Calculadora Científica</h1>
+            <div class="display">
+                <div class="expression" id="expression"></div>
+                <div class="result" id="result">0</div>
+            </div>
+            <div class="keypad">
+                <button class="btn clear" onclick="clearAll()">C</button>
+                <button class="btn function" onclick="backspace()">⌫</button>
+                <button class="btn function" onclick="appendOperation('%')">%</button>
+                <button class="btn function" onclick="appendOperation('(')">(</button>
+                <button class="btn function" onclick="appendOperation(')')">)</button>
+                <button class="btn function" onclick="appendOperation('sin(')">sin</button>
+                
+                <button class="btn function" onclick="appendOperation('pi')">π</button>
+                <button class="btn function" onclick="appendOperation('e')">e</button>
+                <button class="btn function" onclick="appendOperation('^')">^</button>
+                <button class="btn function" onclick="appendOperation('sqrt(')">√</button>
+                <button class="btn variable" onclick="appendVariable('x')">x</button>
+                <button class="btn function" onclick="appendOperation('cos(')">cos</button>
+                
+                <button class="btn number" onclick="appendNumber(7)">7</button>
+                <button class="btn number" onclick="appendNumber(8)">8</button>
+                <button class="btn number" onclick="appendNumber(9)">9</button>
+                <button class="btn operator" onclick="appendOperation('/')">/</button>
+                <button class="btn variable" onclick="appendVariable('y')">y</button>
+                <button class="btn function" onclick="appendOperation('tan(')">tan</button>
+                
+                <button class="btn number" onclick="appendNumber(4)">4</button>
+                <button class="btn number" onclick="appendNumber(5)">5</button>
+                <button class="btn number" onclick="appendNumber(6)">6</button>
+                <button class="btn operator" onclick="appendOperation('*')">×</button>
+                <button class="btn variable" onclick="appendVariable('z')">z</button>
+                <button class="btn function" onclick="appendOperation('csc(')">csc</button>
+                
+                <button class="btn number" onclick="appendNumber(1)">1</button>
+                <button class="btn number" onclick="appendNumber(2)">2</button>
+                <button class="btn number" onclick="appendNumber(3)">3</button>
+                <button class="btn operator" onclick="appendOperation('-')">-</button>
+                <button class="btn variable" onclick="appendVariable('t')">t</button>
+                <button class="btn function" onclick="appendOperation('cot(')">cot</button>
+                
+                <button class="btn number" onclick="appendNumber(0)">0</button>
+                <button class="btn number" onclick="appendDecimal()">.</button>
+                <button class="btn equals" onclick="calculate()">=</button>
+                <button class="btn operator" onclick="appendOperation('+')">+</button>
+                <button class="btn variable" onclick="appendVariable('w')">w</button>
+                <button class="btn function" onclick="appendOperation('sec(')">sec</button>
+            </div>
+            <div class="keyboard-hint">Escribe directamente: x^2, sin(x), etc.</div>
+        </div>
+        
+        <div class="history-panel">
+            <h2>Historial de Calcify</h2>
+            <div class="history-list" id="history-list">
+                <!-- El historial se cargará aquí -->
+            </div>
+            <div class="history-actions">
+                <button class="history-btn" onclick="clearHistory()">Limpiar Historial</button>
+            </div>
+        </div>
+
+        <div class="graph-panel">
+            <h2>Graficador de Calcify</h2>
+            <div class="graph-container">
+                <div class="dimension-controls">
+                    <button class="dimension-btn" onclick="changeDimension(2)">2D</button>
+                    <button class="dimension-btn active" onclick="changeDimension(3)">3D</button>
+                    <button class="dimension-btn" onclick="changeDimension(4)">4D</button>
+                    <button class="dimension-btn" onclick="changeDimension(5)">5D</button>
+                </div>
+                <div class="graph-controls">
+                    <input type="text" id="graphExpression" placeholder="Ejemplo: x^4 + y^4 + z^4 - 1" value="x^4 + y^4 + z^4 - 1">
+                    <input type="number" id="xMin" placeholder="X min" value="-2">
+                    <input type="number" id="xMax" placeholder="X max" value="2">
+                    <input type="number" id="yMin" placeholder="Y min" value="-2">
+                    <input type="number" id="yMax" placeholder="Y max" value="2">
+                    <input type="number" id="zMin" placeholder="Z min" value="-2">
+                    <input type="number" id="zMax" placeholder="Z max" value="2">
+                    <input type="number" id="paramMin" placeholder="Param min" value="0" style="display:none">
+                    <input type="number" id="paramMax" placeholder="Param max" value="10" style="display:none">
+                    <input type="number" id="resolution" placeholder="Resolución" value="30">
+                    <button onclick="graphFunction()">Graficar</button>
+                </div>
+                <div id="graph-canvas"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentExpression = '';
+        let currentResult = '0';
+        let calculationHistory = [];
+        let currentDimension = 3;
+        let scene, camera, renderer, controls;
+        let graphObjects = [];
+
+        // Inicializar la calculadora
+        function initCalculator() {
+            loadHistory();
+            updateDisplay();
+            init3DGraph();
+            changeDimension(3); // Iniciar en modo 3D
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        // Manejar eventos de teclado
+        function handleKeyDown(event) {
+            if (event.target.tagName === 'INPUT') return;
+            
+            if (/[0-9]/.test(event.key)) {
+                appendNumber(parseInt(event.key));
+            } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+                appendOperation(event.key);
+            } else if (event.key === '.') {
+                appendDecimal();
+            } else if (event.key === 'Enter' || event.key === '=') {
+                calculate();
+            } else if (event.key === 'Escape') {
+                clearAll();
+            } else if (event.key === 'Backspace') {
+                backspace();
+            } else if (event.key === '(') {
+                appendOperation('(');
+            } else if (event.key === ')') {
+                appendOperation(')');
+            } else if (event.key === '^') {
+                appendOperation('^');
+            } else if (event.key.toLowerCase() === 'x') {
+                appendVariable('x');
+            } else if (event.key.toLowerCase() === 'y') {
+                appendVariable('y');
+            } else if (event.key.toLowerCase() === 'z') {
+                appendVariable('z');
+            } else if (event.key.toLowerCase() === 't') {
+                appendVariable('t');
+            } else if (event.key.toLowerCase() === 'w') {
+                appendVariable('w');
+            } else if (event.key.toLowerCase() === 'p') {
+                appendOperation('pi');
+            } else if (event.key.toLowerCase() === 'e') {
+                appendOperation('e');
+            }
+        }
+
+        // Añadir número a la expresión actual
+        function appendNumber(number) {
+            currentExpression += number;
+            updateDisplay();
+            updateGraphExpression();
+        }
+
+        // Añadir operación/función a la expresión actual
+        function appendOperation(operation) {
+            currentExpression += operation;
+            updateDisplay();
+            updateGraphExpression();
+        }
+
+        // Añadir variable a la expresión actual
+        function appendVariable(variable) {
+            currentExpression += variable;
+            updateDisplay();
+            updateGraphExpression();
+        }
+
+        // Añadir punto decimal
+        function appendDecimal() {
+            if (!currentExpression.includes('.')) {
+                currentExpression += '.';
+                updateDisplay();
+                updateGraphExpression();
+            }
+        }
+
+        // Calcular el resultado
+        function calculate() {
+            try {
+                let expressionToEvaluate = currentExpression
+                    .replace(/×/g, '*')
+                    .replace(/π/g, 'pi')
+                    .replace(/√/g, 'sqrt')
+                    .replace(/\^/g, '**');
+                
+                const result = math.evaluate(expressionToEvaluate);
+                currentResult = formatResult(result);
+                addToHistory(currentExpression, currentResult);
+                currentExpression = currentResult.toString();
+                updateDisplay();
+                updateGraphExpression();
+            } catch (error) {
+                currentResult = 'Error';
+                updateDisplay();
+                setTimeout(() => {
+                    currentResult = '0';
+                    updateDisplay();
+                }, 1500);
+            }
+        }
+
+        // Actualizar el campo de expresión del graficador
+        function updateGraphExpression() {
+            document.getElementById('graphExpression').value = currentExpression;
+        }
+
+        // Formatear el resultado
+        function formatResult(result) {
+            if (typeof result === 'number') {
+                if (Number.isInteger(result)) {
+                    return result;
+                } else {
+                    return Math.round(result * 100000000) / 100000000;
+                }
+            }
+            return result;
+        }
+
+        // Borrar todo
+        function clearAll() {
+            currentExpression = '';
+            currentResult = '0';
+            updateDisplay();
+            updateGraphExpression();
+        }
+
+        // Borrar el último carácter
+        function backspace() {
+            currentExpression = currentExpression.slice(0, -1);
+            updateDisplay();
+            updateGraphExpression();
+        }
+
+        // Actualizar la pantalla
+        function updateDisplay() {
+            document.getElementById('expression').textContent = currentExpression;
+            document.getElementById('result').textContent = currentResult;
+        }
+
+        // Cambiar dimensión de graficación
+        function changeDimension(dimension) {
+            currentDimension = dimension;
+            
+            // Actualizar botones de dimensión
+            document.querySelectorAll('.dimension-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.dimension-btn[onclick="changeDimension(${dimension})"]`).classList.add('active');
+            
+            // Mostrar/ocultar controles según la dimensión
+            const zMin = document.getElementById('zMin');
+            const zMax = document.getElementById('zMax');
+            const paramMin = document.getElementById('paramMin');
+            const paramMax = document.getElementById('paramMax');
+            
+            if (dimension === 2) {
+                zMin.style.display = 'none';
+                zMax.style.display = 'none';
+                paramMin.style.display = 'none';
+                paramMax.style.display = 'none';
+                document.getElementById('graphExpression').value = 'sin(x)';
+            } else if (dimension === 3) {
+                zMin.style.display = 'inline-block';
+                zMax.style.display = 'inline-block';
+                paramMin.style.display = 'none';
+                paramMax.style.display = 'none';
+                document.getElementById('graphExpression').value = 'x^4 + y^4 + z^4 - 1';
+            } else if (dimension === 4) {
+                zMin.style.display = 'inline-block';
+                zMax.style.display = 'inline-block';
+                paramMin.style.display = 'inline-block';
+                paramMax.style.display = 'inline-block';
+                document.getElementById('graphExpression').value = 'sin(sqrt(x^2 + y^2 + t))';
+            } else if (dimension === 5) {
+                zMin.style.display = 'inline-block';
+                zMax.style.display = 'inline-block';
+                paramMin.style.display = 'inline-block';
+                paramMax.style.display = 'inline-block';
+                document.getElementById('graphExpression').value = 'sin(x * w + y * t)';
+            }
+        }
+
+        // Inicializar gráfico 3D
+        function init3DGraph() {
+            // Configurar escena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a202c);
+            
+            // Configurar cámara
+            camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+            camera.position.set(5, 5, 5);
+            camera.lookAt(0, 0, 0);
+            
+            // Configurar renderizador
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            const canvas = document.getElementById('graph-canvas');
+            canvas.innerHTML = '';
+            canvas.appendChild(renderer.domElement);
+            
+            // Ajustar tamaño del renderizador
+            updateRendererSize();
+            
+            // Configurar controles de órbita
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Añadir ejes de referencia
+            const axesHelper = new THREE.AxesHelper(5);
+            scene.add(axesHelper);
+            
+            // Añadir grid helper
+            const gridHelper = new THREE.GridHelper(10, 10);
+            scene.add(gridHelper);
+            
+            // Añadir luces
+            const ambientLight = new THREE.AmbientLight(0x404040, 1);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            // Iniciar animación
+            animate();
+            
+            // Ajustar tamaño cuando la ventana cambie
+            window.addEventListener('resize', updateRendererSize);
+            
+            // Graficar el ejemplo inicial
+            graphFunction();
+        }
+
+        // Actualizar tamaño del renderizador
+        function updateRendererSize() {
+            const canvas = document.getElementById('graph-canvas');
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            
+            if (renderer) {
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            }
+        }
+
+        // Animación del renderizador 3D
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Graficar función según la dimensión seleccionada
+        function graphFunction() {
+            // Limpiar gráficos anteriores
+            clearGraph();
+            
+            const expression = document.getElementById('graphExpression').value || currentExpression;
+            if (!expression) return;
+            
+            try {
+                if (currentDimension === 2) {
+                    graph2DFunction(expression);
+                } else if (currentDimension === 3) {
+                    graph3DFunction(expression);
+                } else if (currentDimension === 4) {
+                    graph4DFunction(expression);
+                } else if (currentDimension === 5) {
+                    graph5DFunction(expression);
+                }
+            } catch (error) {
+                console.error('Error al graficar:', error);
+                alert('Error al graficar la función: ' + error.message);
+            }
+        }
+
+        // Graficar función 2D
+        function graph2DFunction(expression) {
+            const xMin = parseFloat(document.getElementById('xMin').value) || -5;
+            const xMax = parseFloat(document.getElementById('xMax').value) || 5;
+            const resolution = parseInt(document.getElementById('resolution').value) || 50;
+            
+            const points = [];
+            const step = (xMax - xMin) / resolution;
+            
+            for (let x = xMin; x <= xMax; x += step) {
+                try {
+                    const y = math.evaluate(expression, { x: x });
+                    if (typeof y === 'number' && isFinite(y)) {
+                        points.push(new THREE.Vector3(x, y, 0));
+                    }
+                } catch (error) {
+                    // Ignorar puntos con errores de evaluación
+                }
+            }
+            
+            // Crear geometría de línea
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ color: 0x9f7aea });
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+            graphObjects.push(line);
+        }
+
+        // Graficar función 3D (isosuperficie para el cubo)
+        function graph3DFunction(expression) {
+            const xMin = parseFloat(document.getElementById('xMin').value) || -2;
+            const xMax = parseFloat(document.getElementById('xMax').value) || 2;
+            const yMin = parseFloat(document.getElementById('yMin').value) || -2;
+            const yMax = parseFloat(document.getElementById('yMax').value) || 2;
+            const zMin = parseFloat(document.getElementById('zMin').value) || -2;
+            const zMax = parseFloat(document.getElementById('zMax').value) || 2;
+            const resolution = parseInt(document.getElementById('resolution').value) || 30;
+            
+            const points = [];
+            const xStep = (xMax - xMin) / resolution;
+            const yStep = (yMax - yMin) / resolution;
+            const zStep = (zMax - zMin) / resolution;
+            
+            // Crear vértices para la isosuperficie
+            for (let i = 0; i <= resolution; i++) {
+                const x = xMin + i * xStep;
+                for (let j = 0; j <= resolution; j++) {
+                    const y = yMin + j * yStep;
+                    for (let k = 0; k <= resolution; k++) {
+                        const z = zMin + k * zStep;
+                        try {
+                            const value = math.evaluate(expression, { x: x, y: y, z: z });
+                            if (Math.abs(value) < 0.1) { // Aproximar isosuperficie
+                                points.push(new THREE.Vector3(x, y, z));
+                            }
+                        } catch (error) {
+                            // Ignorar puntos con errores
+                        }
+                    }
+                }
+            }
+            
+            // Crear geometría de puntos para la isosuperficie
+            const geometry = new THREE.BufferGeometry();
+            geometry.setFromPoints(points);
+            
+            const material = new THREE.PointsMaterial({
+                color: 0x9f7aea,
+                size: 0.05,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const pointsMesh = new THREE.Points(geometry, material);
+            scene.add(pointsMesh);
+            graphObjects.push(pointsMesh);
+        }
+
+        // Graficar función 4D (usando tiempo/color como cuarta dimensión)
+        function graph4DFunction(expression) {
+            const xMin = parseFloat(document.getElementById('xMin').value) || -5;
+            const xMax = parseFloat(document.getElementById('xMax').value) || 5;
+            const yMin = parseFloat(document.getElementById('yMin').value) || -5;
+            const yMax = parseFloat(document.getElementById('yMax').value) || 5;
+            const paramMin = parseFloat(document.getElementById('paramMin').value) || 0;
+            const paramMax = parseFloat(document.getElementById('paramMax').value) || 10;
+            const resolution = parseInt(document.getElementById('resolution').value) || 30;
+            
+            const surfaces = [];
+            const tSteps = 5;
+            const tStep = (paramMax - paramMin) / tSteps;
+            
+            for (let tIndex = 0; tIndex <= tSteps; tIndex++) {
+                const t = paramMin + tIndex * tStep;
+                const points = [];
+                
+                const xStep = (xMax - xMin) / resolution;
+                const yStep = (yMax - yMin) / resolution;
+                
+                for (let i = 0; i <= resolution; i++) {
+                    const x = xMin + i * xStep;
+                    for (let j = 0; j <= resolution; j++) {
+                        const y = yMin + j * yStep;
+                        try {
+                            const z = math.evaluate(expression, { x: x, y: y, t: t });
+                            if (typeof z === 'number' && isFinite(z)) {
+                                points.push(new THREE.Vector3(x, z, y));
+                            } else {
+                                points.push(new THREE.Vector3(x, 0, y));
+                            }
+                        } catch (error) {
+                            points.push(new THREE.Vector3(x, 0, y));
+                        }
+                    }
+                }
+                
+                const geometry = new THREE.BufferGeometry();
+                geometry.setFromPoints(points);
+                
+                const hue = tIndex / tSteps;
+                const color = new THREE.Color().setHSL(hue, 0.8, 0.5);
+                
+                const material = new THREE.PointsMaterial({
+                    color: color,
+                    size: 0.1,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                
+                const pointsMesh = new THREE.Points(geometry, material);
+                scene.add(pointsMesh);
+                graphObjects.push(pointsMesh);
+                surfaces.push({ mesh: pointsMesh, t: t });
+            }
+            
+            console.log("Visualización 4D: El color representa el parámetro t");
+        }
+
+        // Graficar función 5D (usando color y tamaño)
+        function graph5DFunction(expression) {
+            const xMin = parseFloat(document.getElementById('xMin').value) || -5;
+            const xMax = parseFloat(document.getElementById('xMax').value) || 5;
+            const yMin = parseFloat(document.getElementById('yMin').value) || -5;
+            const yMax = parseFloat(document.getElementById('yMax').value) || 5;
+            const paramMin = parseFloat(document.getElementById('paramMin').value) || 0;
+            const paramMax = parseFloat(document.getElementById('paramMax').value) || 10;
+            const resolution = parseInt(document.getElementById('resolution').value) || 20;
+            
+            const tSteps = 3;
+            const wSteps = 3;
+            const tStep = (paramMax - paramMin) / tSteps;
+            const wStep = (paramMax - paramMin) / wSteps;
+            
+            for (let tIndex = 0; tIndex <= tSteps; tIndex++) {
+                const t = paramMin + tIndex * tStep;
+                for (let wIndex = 0; wIndex <= wSteps; wIndex++) {
+                    const w = paramMin + wIndex * wStep;
+                    const points = [];
+                    
+                    const xStep = (xMax - xMin) / resolution;
+                    const yStep = (yMax - yMin) / resolution;
+                    
+                    for (let i = 0; i <= resolution; i++) {
+                        const x = xMin + i * xStep;
+                        for (let j = 0; j <= resolution; j++) {
+                            const y = yMin + j * yStep;
+                            try {
+                                const z = math.evaluate(expression, { x: x, y: y, t: t, w: w });
+                                if (typeof z === 'number' && isFinite(z)) {
+                                    points.push(new THREE.Vector3(x, z, y));
+                                } else {
+                                    points.push(new THREE.Vector3(x, 0, y));
+                                }
+                            } catch (error) {
+                                points.push(new THREE.Vector3(x, 0, y));
+                            }
+                        }
+                    }
+                    
+                    const geometry = new THREE.BufferGeometry();
+                    geometry.setFromPoints(points);
+                    
+                    const hue = tIndex / tSteps;
+                    const size = 0.05 + (wIndex / wSteps) * 0.1;
+                    const color = new THREE.Color().setHSL(hue, 0.8, 0.5);
+                    
+                    const material = new THREE.PointsMaterial({
+                        color: color,
+                        size: size,
+                        transparent: true,
+                        opacity: 0.6
+                    });
+                    
+                    const pointsMesh = new THREE.Points(geometry, material);
+                    scene.add(pointsMesh);
+                    graphObjects.push(pointsMesh);
+                }
+            }
+            
+            console.log("Visualización 5D: El color representa t, el tamaño representa w");
+        }
+
+        // Limpiar gráficos
+        function clearGraph() {
+            graphObjects.forEach(obj => scene.remove(obj));
+            graphObjects = [];
+        }
+
+        // Cargar historial desde localStorage
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('calculatorHistory');
+            if (savedHistory) {
+                calculationHistory = JSON.parse(savedHistory);
+                renderHistory();
+            }
+        }
+
+        // Guardar historial en localStorage
+        function saveHistory() {
+            localStorage.setItem('calculatorHistory', JSON.stringify(calculationHistory));
+        }
+
+        // Añadir operación al historial
+        function addToHistory(expression, result) {
+            const historyItem = {
+                expression,
+                result,
+                timestamp: new Date().toLocaleString()
+            };
+            calculationHistory.unshift(historyItem);
+            if (calculationHistory.length > 50) {
+                calculationHistory.pop();
+            }
+            saveHistory();
+            renderHistory();
+        }
+
+        // Renderizar el historial
+        function renderHistory() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<div class="history-item">No hay operaciones recientes</div>';
+                return;
+            }
+            calculationHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div>
+                        <div class="history-expression">${item.expression}</div>
+                        <div class="history-result">= ${item.result}</div>
+                        <div class="timestamp">${item.timestamp}</div>
+                    </div>
+                    <button class="btn number" onclick="useHistory('${item.expression.replace(/'/g, "\\'")}')">Usar</button>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Usar una expresión del historial
+        function useHistory(expression) {
+            currentExpression = expression;
+            updateDisplay();
+            updateGraphExpression();
+        }
+
+        // Limpiar el historial
+        function clearHistory() {
+            calculationHistory = [];
+            saveHistory();
+            renderHistory();
+        }
+
+        // Inicializar la calculadora cuando se carga la página
+        window.onload = initCalculator;
+    </script>
+</body>
+</html>

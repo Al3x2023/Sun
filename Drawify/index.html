@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="../index.html" class="back-button"><i class="fas fa-arrow-left"></i></a>
+    <div class="container">
+        <h1>Drawify</h1>
+        <div class="toolbar">
+            <input type="color" id="color-picker">
+            <input type="range" id="brush-size" min="1" max="20" value="5">
+            <button id="clear-btn">Clear</button>
+        </div>
+        <canvas id="drawing-board"></canvas>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
