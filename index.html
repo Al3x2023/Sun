@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kairoz - Suite de Aplicaciones</title>
+    <title>Sun - Suite de Aplicaciones</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="application-name" content="Sun">
+    <meta name="description" content="Suite de aplicaciones: notas, tareas, diario, calculadora, clima y más.">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="msapplication-TileColor" content="#4361ee">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="/icons/icon-192.svg">
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="/icons/icon-512.svg">
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sun">
     <style>
         :root {
             --primary: #4361ee;
@@ -568,7 +579,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            backfaceVisibility: hidden;
+            backface-visibility: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -649,7 +660,7 @@
     <div class="sidebar">
         <div class="logo">
             <i class="fas fa-compass"></i>
-            <h1>Kairoz</h1>
+            <h1>Sun</h1>
         </div>
         
         <div class="nav-item active" data-section="dashboard">
@@ -1093,6 +1104,11 @@
                 themeIcon.classList.add('fa-moon');
                 themeText.textContent = 'Modo Oscuro';
             }
+
+            // Actualizar color de la barra del navegador
+            if (window.updateThemeColor) {
+                window.updateThemeColor();
+            }
         }
 
         // Cambiar de sección
@@ -1121,4 +1137,27 @@
         init();
     </script>
 </body>
+    <script>
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registrado:', reg.scope))
+                .catch(err => console.error('Error al registrar SW:', err));
+        });
+    }
+
+    // Instalación PWA: dejamos el botón del navegador (omnibox/menú).
+    // No se muestra botón propio en la UI.
+
+    // Actualizar theme-color al cambiar modo
+    (function () {
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        window.updateThemeColor = function () {
+            const isDark = document.body.classList.contains('dark-mode');
+            if (metaTheme) metaTheme.setAttribute('content', isDark ? '#1a2035' : '#4361ee');
+        };
+        window.updateThemeColor();
+    })();
+    </script>
 </html>
