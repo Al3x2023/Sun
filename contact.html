@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto — Sun Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="Información de contacto y formulario de mensajes de Sun Suite.">
+    <link rel="canonical" href="https://sun-suite.onrender.com/contact.html">
+    <meta property="og:title" content="Contacto — Sun Suite">
+    <meta property="og:description" content="Escríbenos: formulario y correo de contacto de Sun Suite.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sun-suite.onrender.com/contact.html">
+    <meta property="og:image" content="https://sun-suite.onrender.com/icons/icon-512.svg">
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#0f172a; color:#e2e8f0; margin:0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 32px; }
+        a { color:#93c5fd; }
+        header { display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+        h1 { font-size: 2rem; margin:0; }
+        section { background:#111827; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:20px; margin-bottom:16px; }
+        form { display:grid; gap:12px; }
+        input, textarea { padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:#0b1220; color:#e2e8f0; }
+        button { padding:12px 16px; border:none; border-radius:8px; background:#4361ee; color:white; cursor:pointer; }
+        .back { position: fixed; top: 16px; left: 16px; color:#93c5fd; text-decoration:none; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/home.html"><i class="fas fa-arrow-left"></i> Volver</a>
+    <div class="container">
+        <header>
+            <i class="fas fa-envelope"></i>
+            <h1>Contacto</h1>
+        </header>
+
+        <section>
+            <p>Si tienes preguntas sobre Sun o deseas reportar un problema, envía un mensaje usando el formulario o escribe a <a href="mailto:sun.app.suite@gmail.com">sun.app.suite@gmail.com</a>.</p>
+            <form action="mailto:sun.app.suite@gmail.com" method="post" enctype="text/plain">
+                <input name="nombre" placeholder="Tu nombre" required>
+                <input type="email" name="email" placeholder="Tu email" required>
+                <textarea name="mensaje" rows="5" placeholder="Tu mensaje" required></textarea>
+                <button type="submit"><i class="fas fa-paper-plane"></i> Enviar</button>
+            </form>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sun – Configuración</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="application-name" content="Sun">
+    <meta name="description" content="Preferencias de tema, idioma y datos locales de Sun.">
+    <meta name="theme-color" content="#4361ee">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="/icons/icon-192.svg">
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="/icons/icon-512.svg">
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-compass"></i>
+            <h1>Sun</h1>
+        </div>
+        <a class="nav-item" href="/Dashboard/index.html">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/home.html">
+            <i class="fas fa-layer-group"></i>
+            <span>Todas las Apps</span>
+        </a>
+        <a class="nav-item active" href="/Configuacion/Configuracion.html">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+        </a>
+        <div class="subscription-status">
+            <h3>Plan Completo</h3>
+            <p>Todas las apps disponibles</p>
+        </div>
+        <footer style="margin-top:24px; padding:16px; text-align:center; color:#9ca3af; border-top:1px solid rgba(255,255,255,0.1);">
+            <a href="/privacy.html" style="margin-right:16px; color:#93c5fd;">Política de Privacidad</a>
+            <a href="/contact.html" style="color:#93c5fd;">Contacto</a>
+        </footer>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h2 class="dashboard-title">Configuración</h2>
+            <div style="display:flex; align-items:center; gap:16px;">
+                <a href="/Dashboard/index.html" style="color:#93c5fd; text-decoration:none; font-weight:600;">Inicio</a>
+                <div class="theme-switch" id="theme-switch">
+                    <i class="fas fa-moon"></i>
+                    <span>Modo Oscuro</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="apps-grid">
+            <!-- Preferencias de tema -->
+            <div class="app-card">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-adjust"></i></div>
+                    <h3 class="app-title">Tema</h3>
+                </div>
+                <p class="app-description">Activa o desactiva el modo oscuro. Se guarda en el dispositivo.</p>
+                <div class="app-actions">
+                    <button class="app-button" id="btn-set-light">Modo Claro</button>
+                    <button class="app-button" id="btn-set-dark">Modo Oscuro</button>
+                    <button class="app-button" id="btn-reset-theme">Resetear Tema</button>
+                </div>
+            </div>
+
+            <!-- Idioma -->
+            <div class="app-card">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-language"></i></div>
+                    <h3 class="app-title">Idioma</h3>
+                </div>
+                <p class="app-description">Selecciona el idioma preferido para futuras mejoras.</p>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <label><input type="radio" name="lang" value="es"> Español</label>
+                    <label><input type="radio" name="lang" value="en"> English</label>
+                    <button class="app-button" id="btn-save-lang">Guardar</button>
+                </div>
+                <div id="lang-status" style="margin-top:10px; color:var(--gray)"></div>
+            </div>
+
+            <!-- Datos locales -->
+            <div class="app-card">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-database"></i></div>
+                    <h3 class="app-title">Datos locales</h3>
+                </div>
+                <p class="app-description">Gestiona el almacenamiento local de cada aplicación.</p>
+                <div class="app-actions" style="flex-direction:column; gap:10px;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="app-button" data-key="postifyNotes">Borrar Postify</button>
+                        <button class="app-button" data-key="tasks">Borrar Taskee</button>
+                        <button class="app-button" data-key="zenJournalEntries">Borrar Daree</button>
+                        <button class="app-button" data-key="calendarEvents">Borrar Planify</button>
+                        <button class="app-button" data-key="movimientos">Borrar Spendly</button>
+                        <button class="app-button" data-key="calculatorHistory">Borrar Calcify</button>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="app-button" id="btn-clear-selected">Borrar seleccionados</button>
+                        <button class="app-button" id="btn-clear-all">Borrar todo</button>
+                    </div>
+                    <small style="color:var(--gray)">Advertencia: esta acción no se puede deshacer.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Tema global usando clase .dark-mode y clave 'sun-theme'
+    (function() {
+        const THEME_KEY = 'sun-theme';
+        const switchEl = document.getElementById('theme-switch');
+        const iconEl = switchEl ? switchEl.querySelector('i') : null;
+        const btnLight = document.getElementById('btn-set-light');
+        const btnDark = document.getElementById('btn-set-dark');
+        const btnReset = document.getElementById('btn-reset-theme');
+
+        function applyTheme(theme) {
+            const isDark = theme === 'dark';
+            document.body.classList.toggle('dark-mode', isDark);
+            if (iconEl) {
+                iconEl.classList.toggle('fa-sun', isDark);
+                iconEl.classList.toggle('fa-moon', !isDark);
+            }
+        }
+
+        const stored = localStorage.getItem(THEME_KEY);
+        applyTheme(stored === 'dark' ? 'dark' : 'light');
+
+        switchEl?.addEventListener('click', () => {
+            const isDark = !document.body.classList.contains('dark-mode');
+            const next = isDark ? 'dark' : 'light';
+            applyTheme(next);
+            localStorage.setItem(THEME_KEY, next);
+        });
+        btnLight?.addEventListener('click', () => { applyTheme('light'); localStorage.setItem(THEME_KEY, 'light'); });
+        btnDark?.addEventListener('click', () => { applyTheme('dark'); localStorage.setItem(THEME_KEY, 'dark'); });
+        btnReset?.addEventListener('click', () => { localStorage.removeItem(THEME_KEY); applyTheme('light'); });
+    })();
+
+    // Idioma
+    (function() {
+        const LANG_KEY = 'sun-lang';
+        const statusEl = document.getElementById('lang-status');
+        const btnSave = document.getElementById('btn-save-lang');
+        const radios = Array.from(document.querySelectorAll('input[name="lang"]'));
+        const stored = localStorage.getItem(LANG_KEY) || 'es';
+        const current = radios.find(r => r.value === stored);
+        if (current) current.checked = true;
+        if (statusEl) statusEl.textContent = `Idioma actual: ${stored}`;
+        btnSave?.addEventListener('click', () => {
+            const selected = radios.find(r => r.checked)?.value || 'es';
+            localStorage.setItem(LANG_KEY, selected);
+            if (statusEl) statusEl.textContent = `Idioma actual: ${selected}`;
+        });
+    })();
+
+    // Gestión de datos locales
+    (function() {
+        const buttons = Array.from(document.querySelectorAll('button[data-key]'));
+        const selected = new Set();
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.getAttribute('data-key');
+                if (!key) return;
+                const ok = confirm(`¿Borrar datos de "${key}"?`);
+                if (!ok) return;
+                localStorage.removeItem(key);
+                btn.textContent = `Borrado: ${btn.textContent}`;
+            });
+            btn.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const key = btn.getAttribute('data-key');
+                if (!key) return;
+                if (selected.has(key)) { selected.delete(key); btn.style.opacity = 1; }
+                else { selected.add(key); btn.style.opacity = 0.6; }
+            });
+        });
+
+        document.getElementById('btn-clear-selected')?.addEventListener('click', () => {
+            if (!selected.size) { alert('No hay selecciones. Click derecho en botones para seleccionar.'); return; }
+            const ok = confirm(`¿Borrar ${selected.size} conjunto(s) de datos seleccionados?`);
+            if (!ok) return;
+            selected.forEach(key => localStorage.removeItem(key));
+            alert('Datos seleccionados borrados.');
+            selected.clear();
+        });
+
+        document.getElementById('btn-clear-all')?.addEventListener('click', () => {
+            const ok = confirm('¿Borrar TODOS los datos locales? (Incluye otras preferencias)');
+            if (!ok) return;
+            localStorage.clear();
+            alert('Se borraron todos los datos locales.');
+            // Restablecer tema visual inmediatamente
+            document.body.classList.remove('dark-mode');
+        });
+    })();
+    </script>
+</body>
+</html>

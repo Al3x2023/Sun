@@ -1,0 +1,645 @@
+:root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dee2e6;
+            --sidebar-width: 250px;
+        }
+
+        .dark-mode {
+            --primary: #5e72e4;
+            --primary-light: #7b86eb;
+            --secondary: #4a3fb5;
+            --accent: #63d3ff;
+            --success: #5cb85c;
+            --warning: #f0ad4e;
+            --danger: #d9534f;
+            --light: #2d3748;
+            --dark: #c5cee0;
+            --gray: #8c9bbd;
+            --light-gray: #222b45;
+            --background: #1a2035;
+            --card-bg: #222b45;
+            --text-color: #e2e8f0;
+            --border-color: #2d3a5a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            width: 24px;
+        }
+
+        .subscription-status {
+            margin-top: 30px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .subscription-status h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .theme-switch {
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            gap: 8px;
+        }
+
+        .theme-switch span {
+            font-weight: 600;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.07);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .app-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .app-description {
+            color: var(--gray);
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .app-preview {
+            height: 180px;
+            background: var(--light);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-content {
+            width: 100%;
+            height: 100%;
+            padding: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Previsualización para Postify */
+        .preview-postify {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 10px;
+        }
+
+        .preview-note {
+            background: linear-gradient(135deg, #ffeb3b, #ffc107);
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transform: rotate(-2deg);
+        }
+
+        .preview-note:nth-child(2) {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            transform: rotate(1deg);
+        }
+
+        .preview-note:nth-child(3) {
+            background: linear-gradient(135deg, #aed581, #7cb342);
+            transform: rotate(-1deg);
+        }
+
+        /* Previsualización para Daree */
+        .preview-daree {
+            padding: 15px;
+        }
+
+        .preview-task {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .preview-task input {
+            margin-right: 8px;
+        }
+
+        .preview-task.completed {
+            color: var(--success);
+            text-decoration: line-through;
+        }
+
+        /* Previsualización para Taskee */
+        .preview-taskee {
+            padding: 15px;
+            background: #f5f5f5;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .dark-mode .preview-taskee {
+            background: #2a2a2a;
+        }
+
+        .preview-date {
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        /* Previsualización para Calcify */
+        .preview-calcify {
+            padding: 15px;
+            background: #000;
+            color: white;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .preview-display {
+            background: #1a1a1a;
+            padding: 10px;
+            text-align: right;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .preview-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+
+        .preview-button {
+            background: #333;
+            border: none;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .preview-button.operator {
+            background: #ff9500;
+        }
+
+        /* Previsualización para Lockify */
+        .preview-lockify {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-password {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            letter-spacing: 1px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .dark-mode .preview-password {
+            background: #2a2a2a;
+        }
+
+        .preview-slider {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .preview-checkboxes {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        /* Previsualización para Planify */
+        .preview-planify {
+            padding: 10px;
+        }
+
+        .preview-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            font-size: 10px;
+        }
+
+        .preview-day {
+            text-align: center;
+            padding: 5px 0;
+            border-radius: 3px;
+        }
+
+        .preview-day.header {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .preview-day.event {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        /* Previsualización para Arcadito */
+        .preview-arcadito {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-game {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px;
+            width: 100px;
+            height: 100px;
+            background: #333;
+            margin-bottom: 10px;
+        }
+
+        .preview-cell {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .dark-mode .preview-cell {
+            background: #444;
+        }
+
+        /* Previsualización para Spendly */
+        .preview-spendly {
+            padding: 15px;
+        }
+
+        .preview-chart {
+            height: 70px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .preview-bar {
+            flex: 1;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .preview-bar.income {
+            background: var(--success);
+        }
+
+        .preview-bar.expense {
+            background: var(--danger);
+        }
+
+        .preview-transactions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .preview-transaction {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Previsualización para Memefy */
+        .preview-memefy {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+        }
+
+        .dark-mode .preview-memefy {
+            background: #2a2a2a;
+        }
+
+        .preview-meme {
+            width: 90%;
+            height: 70%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid white;
+        }
+
+        .preview-meme-text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: white;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+        }
+
+        .preview-meme-text.top {
+            top: 10px;
+        }
+
+        .preview-meme-text.bottom {
+            bottom: 10px;
+        }
+
+        /* Previsualización para Quizzy */
+        .preview-quizzy {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-flashcard {
+            width: 100%;
+            height: 100px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 15px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .preview-flashcard-inner {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .preview-flashcard:hover .preview-flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .preview-flashcard-front, .preview-flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .preview-flashcard-back {
+            background: var(--accent);
+            transform: rotateY(180deg);
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .app-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+            background-color: var(--primary);
+            transition: background-color 0.2s ease, transform 0.08s ease;
+        }
+
+        .app-button:hover {
+            background-color: var(--secondary);
+            text-decoration: none;
+        }
+
+        .app-button:active {
+            transform: translateY(1px);
+        }
+
+        /* Mantener compatibilidad: los botones .open-app siguen funcionando */
+        .open-app { }
+        .open-app:hover { }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .apps-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 15px 10px;
+            }
+            
+            .logo h1, .nav-item span, .subscription-status {
+                display: none;
+            }
+            
+            .logo {
+                justify-content: center;
+            }
+            
+            .nav-item {
+                justify-content: center;
+                padding: 12px;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+                padding: 20px;
+            }
+            
+            .apps-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+ 

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sun – Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="application-name" content="Sun">
+    <meta name="description" content="Dashboard de Sun: resumen y datos relevantes para el usuario.">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="msapplication-TileColor" content="#4361ee">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="/icons/icon-192.svg">
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="/icons/icon-512.svg">
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sun">
+    <link rel="stylesheet" href="/styles.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7727309721779712" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-compass"></i>
+            <h1>Sun</h1>
+        </div>
+
+        <a class="nav-item active" href="/Dashboard/index.html">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a class="nav-item" href="/home.html">
+            <i class="fas fa-layer-group"></i>
+            <span>Todas las Apps</span>
+        </a>
+
+        <a class="nav-item" href="/Configuacion/Configuracion.html">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+        </a>
+
+        <div class="subscription-status">
+            <h3>Plan Completo</h3>
+            <p>Todas las apps disponibles</p>
+        </div>
+        <footer style="margin-top:24px; padding:16px; text-align:center; color:#9ca3af; border-top:1px solid rgba(255,255,255,0.1);">
+            <a href="/privacy.html" style="margin-right:16px; color:#93c5fd;">Política de Privacidad</a>
+            <a href="/contact.html" style="color:#93c5fd;">Contacto</a>
+        </footer>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h2 class="dashboard-title">Dashboard</h2>
+            <div style="display:flex; align-items:center; gap:16px;">
+                <a href="../index.html" style="color:#93c5fd; text-decoration:none; font-weight:600;">Inicio</a>
+                <div class="theme-switch" id="theme-switch">
+                    <i class="fas fa-moon"></i>
+                    <span>Modo Oscuro</span>
+                </div>
+            </div>
+
+            <!-- Bloque de anuncio: Dashboard (al final del contenido principal) -->
+            <div style="grid-column: 1 / -1;">
+                <ins class="adsbygoogle" style="display:block; width:100%; text-align:center; min-height:90px; margin:12px 0;"
+                     data-ad-client="ca-pub-7727309721779712"
+                     data-ad-slot="0000000000"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+            </div>
+        </div>
+
+        <!-- Tarjetas de resumen -->
+        <div class="apps-grid">
+            <div class="app-card" style="grid-column: span 2;">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-sun"></i></div>
+                    <h3 class="app-title">Bienvenido a Sun Suite</h3>
+                </div>
+                <p class="app-description">Aquí verás un resumen rápido de tus aplicaciones y accesos directos.</p>
+                <div class="app-actions">
+                    <a class="app-button" style="text-decoration: none; color: #fff; background-color: #4361ee;" href="/home.html">Ver todas las apps</a>  
+                </div>
+            </div>
+
+            <div class="app-card">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3 class="app-title">Resumen</h3>
+                </div>
+                <p class="app-description">Actividad reciente y estado general. (Contenido demostrativo)</p>
+                <div class="app-preview">
+                    <div class="preview-content">
+                        <div style="display:flex; gap:12px;">
+                            <span style="color:var(--success)">Apps activas: 12</span>
+                            <span style="color:var(--primary)">Modo: Offline</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-card">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-bolt"></i></div>
+                    <h3 class="app-title">Accesos rápidos</h3>
+                </div>
+                <p class="app-description">Enlaces directos a utilidades frecuentes.</p>
+                <div class="app-actions">
+                    <a class="app-button" href="/Calcify/index.html">Abrir Calcify</a>
+                    <a class="app-button" href="/Taskee/index.html">Abrir Taskee</a>
+                    <a class="app-button" href="/Daree/index.html">Abrir Daree</a>
+                </div>
+            </div>
+
+            <!-- Notas recientes (Postify) -->
+            <div class="app-card" id="card-postify">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-sticky-note"></i></div>
+                    <h3 class="app-title">Notas recientes</h3>
+                </div>
+                <p class="app-description">Últimas 3 notas de Postify</p>
+                <div class="app-preview">
+                    <ul id="postify-list" style="margin:0; padding-left:18px"></ul>
+                </div>
+                <div class="app-actions">
+                    <a class="app-button" href="/Postify/index.html">Abrir Postify</a>
+                </div>
+            </div>
+
+            <!-- Tareas pendientes (Taskee) -->
+            <div class="app-card" id="card-taskee">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-tasks"></i></div>
+                    <h3 class="app-title">Tareas pendientes</h3>
+                </div>
+                <p class="app-description">Resumen de tus tareas en Taskee</p>
+                <div class="app-preview">
+                    <div id="taskee-summary" style="display:flex; gap:12px; flex-wrap:wrap"></div>
+                    <ul id="taskee-list" style="margin-top:8px; padding-left:18px"></ul>
+                </div>
+                <div class="app-actions">
+                    <a class="app-button" href="/Taskee/index.html">Abrir Taskee</a>
+                </div>
+            </div>
+
+            <!-- Diario reciente (Daree) -->
+            <div class="app-card" id="card-daree">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-book"></i></div>
+                    <h3 class="app-title">Diario reciente</h3>
+                </div>
+                <p class="app-description">Últimas reflexiones guardadas</p>
+                <div class="app-preview">
+                    <ul id="daree-list" style="margin:0; padding-left:18px"></ul>
+                </div>
+                <div class="app-actions">
+                    <a class="app-button" href="/Daree/index.html">Abrir Daree</a>
+                </div>
+            </div>
+
+            <!-- Próximos eventos (Planify) -->
+            <div class="app-card" id="card-planify">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-calendar"></i></div>
+                    <h3 class="app-title">Próximos eventos</h3>
+                </div>
+                <p class="app-description">Tus siguientes 3 eventos</p>
+                <div class="app-preview">
+                    <ul id="planify-list" style="margin:0; padding-left:18px"></ul>
+                </div>
+                <div class="app-actions">
+                    <a class="app-button" href="/Planify/index.html">Abrir Planify</a>
+                </div>
+            </div>
+
+            <!-- Resumen financiero (Spendly) -->
+            <div class="app-card" id="card-spendly">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-wallet"></i></div>
+                    <h3 class="app-title">Finanzas</h3>
+                </div>
+                <p class="app-description">Ingresos, gastos y últimos movimientos</p>
+                <div class="app-preview">
+                    <div id="spendly-summary" style="display:flex; gap:12px; flex-wrap:wrap"></div>
+                    <ul id="spendly-list" style="margin-top:8px; padding-left:18px"></ul>
+                </div>
+                <div class="app-actions">
+                    <a class="app-button" href="/Spendly/index.html">Abrir Spendly</a>
+                </div>
+            </div>
+
+            <!-- Historial de cálculos (Calcify) -->
+            <div class="app-card" id="card-calcify">
+                <div class="app-card-header">
+                    <div class="app-icon"><i class="fas fa-calculator"></i></div>
+                    <h3 class="app-title">Últimos cálculos</h3>
+                </div>
+                <p class="app-description">Lo más reciente en Calcify</p>
+                <div class="app-preview">
+                    <ul id="calcify-list" style="margin:0; padding-left:18px"></ul>
+                </div>
+                <div class="app-actions">
+                    <a class="app-button" href="/Calcify/index.html">Abrir Calcify</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    window.addEventListener('load', () => {
+        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+    });
+    // Tema (modo oscuro persistente usando clase .dark-mode definida en styles.css)
+    (function() {
+        const THEME_KEY = 'sun-theme';
+        const switchEl = document.getElementById('theme-switch');
+        const iconEl = switchEl ? switchEl.querySelector('i') : null;
+
+        function applyTheme(theme) {
+            const isDark = theme === 'dark';
+            document.body.classList.toggle('dark-mode', isDark);
+            if (iconEl) {
+                iconEl.classList.toggle('fa-sun', isDark);
+                iconEl.classList.toggle('fa-moon', !isDark);
+            }
+        }
+
+        // Aplicar tema al cargar
+        const stored = localStorage.getItem(THEME_KEY);
+        applyTheme(stored === 'dark' ? 'dark' : 'light');
+
+        // Alternar y persistir
+        switchEl?.addEventListener('click', () => {
+            const isDark = !document.body.classList.contains('dark-mode');
+            applyTheme(isDark ? 'dark' : 'light');
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+        });
+    })();
+
+    // Utilidades
+    const safeParse = (raw, fallback) => {
+        try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+    };
+    const fmtDateTime = (val) => {
+        const d = typeof val === 'number' ? new Date(val) : new Date(val);
+        if (isNaN(d.getTime())) return '—';
+        return d.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+    };
+
+    // Postify: 'postifyNotes'
+    (() => {
+        const notes = safeParse(localStorage.getItem('postifyNotes'), []);
+        const list = document.getElementById('postify-list');
+        if (!list) return;
+        if (!notes.length) { list.innerHTML = '<li>No hay notas aún</li>'; return; }
+        notes.slice(-3).reverse().forEach(n => {
+            const li = document.createElement('li');
+            li.textContent = (n.content || '').trim().slice(0, 80) || '(Vacío)';
+            list.appendChild(li);
+        });
+    })();
+
+    // Taskee (To-Do): 'tasks'
+    (() => {
+        const tasks = safeParse(localStorage.getItem('tasks'), []);
+        const summary = document.getElementById('taskee-summary');
+        const list = document.getElementById('taskee-list');
+        if (!summary || !list) return;
+        const pending = tasks.filter(t => !t.completed);
+        const completed = tasks.filter(t => t.completed);
+        summary.innerHTML = `
+            <span style="color:var(--warning)">Pendientes: ${pending.length}</span>
+            <span style="color:var(--success)">Completadas: ${completed.length}</span>
+        `;
+        if (!pending.length) { list.innerHTML = '<li>Sin tareas pendientes</li>'; return; }
+        const upcoming = pending
+            .filter(t => t.reminder)
+            .sort((a,b) => new Date(a.reminder) - new Date(b.reminder))[0];
+        if (upcoming) {
+            const li = document.createElement('li');
+            li.textContent = `Recordatorio próximo: ${upcoming.text} (${fmtDateTime(upcoming.reminder)})`;
+            list.appendChild(li);
+        }
+        pending.slice(0,3).forEach(t => {
+            const li = document.createElement('li');
+            li.textContent = `${t.text || '(Sin texto)'} – prioridad ${t.priority || 'low'}`;
+            list.appendChild(li);
+        });
+    })();
+
+    // Daree (Diario): 'zenJournalEntries'
+    (() => {
+        const entries = safeParse(localStorage.getItem('zenJournalEntries'), []);
+        const list = document.getElementById('daree-list');
+        if (!list) return;
+        if (!entries.length) { list.innerHTML = '<li>Sin reflexiones guardadas</li>'; return; }
+        entries.sort((a,b) => (b.date||0) - (a.date||0));
+        entries.slice(0,3).forEach(e => {
+            const li = document.createElement('li');
+            li.textContent = `${fmtDateTime(parseInt(e.date))} · ${e.preview || (e.content||'').slice(0,60)}`;
+            list.appendChild(li);
+        });
+    })();
+
+    // Planify: 'calendarEvents'
+    (() => {
+        const events = safeParse(localStorage.getItem('calendarEvents'), []);
+        const list = document.getElementById('planify-list');
+        if (!list) return;
+        if (!events.length) { list.innerHTML = '<li>No hay eventos</li>'; return; }
+        const norm = events.map(e => ({
+            title: e.title || 'Evento',
+            start: e.start ? new Date(e.start) : null
+        })).filter(e => e.start && !isNaN(e.start));
+        norm.sort((a,b) => a.start - b.start);
+        norm.slice(0,3).forEach(e => {
+            const li = document.createElement('li');
+            li.textContent = `${fmtDateTime(e.start)} · ${e.title}`;
+            list.appendChild(li);
+        });
+    })();
+
+    // Spendly: 'movimientos'
+    (() => {
+        const movs = safeParse(localStorage.getItem('movimientos'), []);
+        const summary = document.getElementById('spendly-summary');
+        const list = document.getElementById('spendly-list');
+        if (!summary || !list) return;
+        const ingresos = movs.filter(m => m.tipo === 'ingreso').reduce((s,m)=>s+parseFloat(m.monto||0),0);
+        const gastos = movs.filter(m => m.tipo === 'gasto').reduce((s,m)=>s+parseFloat(m.monto||0),0);
+        const saldo = ingresos - gastos;
+        summary.innerHTML = `
+            <span style="color:var(--success)">Ingresos: $${ingresos.toFixed(2)}</span>
+            <span style="color:var(--danger)">Gastos: $${gastos.toFixed(2)}</span>
+            <span style="color:${saldo<0?'var(--danger)':'var(--success)'}">Saldo: $${saldo.toFixed(2)}</span>
+        `;
+        movs.slice(-3).reverse().forEach(m => {
+            const li = document.createElement('li');
+            li.textContent = `${(m.categoria||m.descripcion||m.tipo||'Movimiento')} · $${parseFloat(m.monto||0).toFixed(2)} (${m.tipo})`;
+            list.appendChild(li);
+        });
+        if (!movs.length) { list.innerHTML = '<li>Sin movimientos</li>'; }
+    })();
+
+    // Calcify: 'calculatorHistory'
+    (() => {
+        const hist = safeParse(localStorage.getItem('calculatorHistory'), []);
+        const list = document.getElementById('calcify-list');
+        if (!list) return;
+        if (!hist.length) { list.innerHTML = '<li>Sin cálculos guardados</li>'; return; }
+        hist.slice(0,3).forEach(h => {
+            const li = document.createElement('li');
+            li.textContent = `${h.expression} = ${h.result}`;
+            list.appendChild(li);
+        });
+    })();
+    </script>
+</body>
+</html>
