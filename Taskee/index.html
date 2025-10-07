@@ -1285,6 +1285,7 @@
             let notificationPermission = false;
             let soundEnabled = true;
             let audioContext = null;
+            let reminderTimers = {};
             
             // Inicializar la aplicación
             initApp();
@@ -1305,6 +1306,13 @@
                 // Cargar tema preferido
                 const savedTheme = localStorage.getItem('taskee-theme') || 'purple';
                 changeTheme(savedTheme);
+
+                // Registrar Service Worker para mejorar compatibilidad y caché
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js').catch(err => {
+                        console.warn('Fallo al registrar el Service Worker:', err);
+                    });
+                }
                 
                 // Comprobar si las notificaciones están soportadas
                 if (!('Notification' in window)) {
@@ -1318,6 +1326,10 @@
                     notificationPermission = true;
                     notificationPermissionPanel.style.display = 'none';
                     startNotificationChecker();
+                    // Comprobar inmediatamente por si ya hay recordatorios próximos
+                    checkReminders();
+                    // Programar recordatorios existentes
+                    rescheduleAllReminders();
                 } else if (Notification.permission === 'denied') {
                     notificationPermissionPanel.innerHTML = '<p><i class="fas fa-bell-slash"></i> Las notificaciones están bloqueadas para este sitio</p>';
                 }
@@ -1518,6 +1530,8 @@
                         notificationPermission = true;
                         notificationPermissionPanel.style.display = 'none';
                         startNotificationChecker();
+                        // Reprogramar recordatorios ahora que hay permiso
+                        rescheduleAllReminders();
                         showNotification('Notificaciones activadas', 'Ahora recibirás recordatorios de tus tareas', 'success');
                         playSound('success');
                     } else {
@@ -1557,11 +1571,21 @@
                                 ...task, 
                                 text: taskText,
                                 priority: currentPriority,
-                                reminder: reminderDateTime
+                                reminder: reminderDateTime,
+                                notified: false
                             };
                         }
                         return task;
                     });
+
+                    // Reprogramar recordatorio de la tarea editada
+                    if (notificationPermission) {
+                        clearReminderForTask(editTaskId);
+                        const updatedTask = tasks.find(t => t.id === editTaskId);
+                        if (updatedTask && updatedTask.reminder) {
+                            scheduleReminderForTask(updatedTask);
+                        }
+                    }
                     
                     editTaskId = null;
                     addTaskBtn.innerHTML = '<i class="fas fa-plus"></i> Agregar';
@@ -1589,6 +1613,11 @@
                     };
                     
                     tasks.push(newTask);
+
+                    // Programar recordatorio si hay permiso
+                    if (notificationPermission && newTask.reminder) {
+                        scheduleReminderForTask(newTask);
+                    }
                     
                     // Limpiar campos de recordatorio
                     reminderDate.value = '';
@@ -1609,6 +1638,8 @@
             // Función para eliminar una tarea
             function deleteTask(id) {
                 if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+                    // Cancelar cualquier recordatorio programado
+                    clearReminderForTask(id);
                     tasks = tasks.filter(task => task.id !== id);
                     saveTasks();
                     renderTasks();
@@ -1631,6 +1662,17 @@
                     }
                     return task;
                 });
+
+                // Gestionar recordatorios según estado
+                const toggledTask = tasks.find(t => t.id === id);
+                if (toggledTask) {
+                    if (toggledTask.completed) {
+                        clearReminderForTask(id);
+                        toggledTask.notified = false;
+                    } else if (notificationPermission && toggledTask.reminder) {
+                        scheduleReminderForTask(toggledTask);
+                    }
+                }
                 
                 saveTasks();
                 renderTasks();
@@ -1756,7 +1798,7 @@
                 // Crear y mostrar la notificación
                 const notification = new Notification(title, {
                     body: message,
-                    icon: 'https://example.com/icon.png',
+                    icon: '/icons/icon-192.svg',
                     tag: 'taskee-notification'
                 });
                 
@@ -1796,6 +1838,51 @@
             // Iniciar comprobación de recordatorios
             function startNotificationChecker() {
                 notificationCheckInterval = setInterval(checkReminders, 30000); // Comprobar cada 30 segundos
+            }
+
+            // Programación basada en temporizadores por tarea
+            function scheduleReminderForTask(task) {
+                clearReminderForTask(task.id);
+                if (!task.reminder || task.completed) return;
+
+                const reminderTime = new Date(task.reminder);
+                const preTime = new Date(reminderTime.getTime() - 60000); // 1 minuto antes
+                const now = new Date();
+
+                let delay = preTime - now;
+                // Si ya estamos dentro del último minuto, notificar inmediatamente
+                if (delay <= 0 && now < reminderTime) {
+                    delay = 0;
+                }
+                // Si ya pasó el recordatorio, no programar
+                if (delay < 0) return;
+
+                reminderTimers[task.id] = setTimeout(() => {
+                    showSystemNotification('Recordatorio de Taskee', `La tarea "${task.text}" está próxima a vencer`);
+                    showNotification('Recordatorio', `La tarea "${task.text}" está próxima a vencer`, 'warning');
+                    task.notified = true;
+                    saveTasks();
+                }, delay);
+            }
+
+            function clearReminderForTask(id) {
+                const timerId = reminderTimers[id];
+                if (timerId) {
+                    clearTimeout(timerId);
+                    delete reminderTimers[id];
+                }
+            }
+
+            function rescheduleAllReminders() {
+                if (!notificationPermission) return;
+                // Limpiar existentes
+                Object.keys(reminderTimers).forEach(clearReminderForTask);
+                // Programar pendientes
+                tasks.forEach(task => {
+                    if (task.reminder && !task.completed && !task.notified) {
+                        scheduleReminderForTask(task);
+                    }
+                });
             }
             
             // Función para renderizar las tareas
@@ -1960,6 +2047,10 @@
                 if (savedTasks) {
                     tasks = savedTasks;
                     renderTasks();
+                    // Programar recordatorios cargados si hay permiso
+                    if (notificationPermission) {
+                        rescheduleAllReminders();
+                    }
                 }
             }
         });
