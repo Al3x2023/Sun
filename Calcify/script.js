@@ -3,7 +3,9 @@ const Calculator = {
         currentExpression: '',
         currentResult: '0',
         calculationHistory: [],
-        currentDimension: 3
+        currentDimension: 3,
+        numberFormat: 'normal',
+        theme: 'dark'
     },
 
     init() {
@@ -83,11 +85,22 @@ const Calculator = {
 
     calculate() {
         try {
-            const expression = this.state.currentExpression
+            let expression = this.state.currentExpression
                 .replace(/×/g, '*')
                 .replace(/π/g, 'pi')
                 .replace(/√/g, 'sqrt')
                 .replace(/\^/g, '**');
+
+            if (expression.includes('derivative(')) {
+                expression = expression.replace(/derivative\(([^,]+),\s*([^)]+)\)/g, (match, expr, variable) => {
+                    try {
+                        const derivative = math.derivative(expr.trim(), variable.trim());
+                        return `(${derivative.toString()})`;
+                    } catch (e) {
+                        return match;
+                    }
+                });
+            }
 
             const result = math.evaluate(expression);
             if (!isFinite(result)) throw new Error('Resultado no finito');
@@ -108,9 +121,62 @@ const Calculator = {
 
     formatResult(result) {
         if (typeof result === 'number') {
+            if (this.state.numberFormat === 'scientific' && Math.abs(result) >= 1000) {
+                return result.toExponential(4);
+            } else if (this.state.numberFormat === 'engineering' && Math.abs(result) >= 1000) {
+                const exponent = Math.floor(Math.log10(Math.abs(result)) / 3) * 3;
+                const mantissa = result / Math.pow(10, exponent);
+                return `${mantissa.toFixed(4)}e${exponent}`;
+            }
             return Number.isInteger(result) ? result : Math.round(result * 1e8) / 1e8;
         }
         return result.toString();
+    },
+
+    toggleNumberFormat() {
+        const formats = ['normal', 'scientific', 'engineering'];
+        const currentIndex = formats.indexOf(this.state.numberFormat);
+        this.state.numberFormat = formats[(currentIndex + 1) % formats.length];
+
+        const btn = document.querySelector('.format-options button');
+        if (btn) {
+            const labels = { normal: 'Normal', scientific: 'Científica', engineering: 'Ingeniería' };
+            btn.innerHTML = `<i class="fas fa-superscript"></i> Formato: ${labels[this.state.numberFormat]}`;
+        }
+
+        if (this.state.currentResult !== '0' && this.state.currentResult !== 'Error') {
+            this.calculate();
+        }
+    },
+
+    toggleTheme() {
+        this.state.theme = this.state.theme === 'dark' ? 'light' : 'dark';
+        const root = document.documentElement;
+        const icon = document.getElementById('theme-icon');
+
+        if (this.state.theme === 'light') {
+            root.style.setProperty('--bg-dark', '#f7fafc');
+            root.style.setProperty('--bg-medium', '#e2e8f0');
+            root.style.setProperty('--bg-light', '#cbd5e0');
+            root.style.setProperty('--text-light', '#1a202c');
+            root.style.setProperty('--text-medium', '#4a5568');
+            root.style.setProperty('--text-dim', '#718096');
+            document.body.style.background = 'linear-gradient(135deg, #e0e7ff, #fef3c7, #fce7f3)';
+            if (icon) icon.className = 'fas fa-sun';
+            if (Graph.scene) Graph.scene.background = new THREE.Color(0xf7fafc);
+        } else {
+            root.style.setProperty('--bg-dark', '#1a202c');
+            root.style.setProperty('--bg-medium', '#2d3748');
+            root.style.setProperty('--bg-light', '#4a5568');
+            root.style.setProperty('--text-light', '#f7fafc');
+            root.style.setProperty('--text-medium', '#cbd5e0');
+            root.style.setProperty('--text-dim', '#718096');
+            document.body.style.background = 'linear-gradient(135deg, #0f172a, #1e293b, #334155)';
+            if (icon) icon.className = 'fas fa-moon';
+            if (Graph.scene) Graph.scene.background = new THREE.Color(0x1a202c);
+        }
+
+        localStorage.setItem('calcifyTheme', this.state.theme);
     },
 
     clearAll() {
@@ -177,6 +243,12 @@ const Calculator = {
             if (savedHistory) {
                 this.state.calculationHistory = JSON.parse(savedHistory);
                 History.render();
+            }
+
+            const savedTheme = localStorage.getItem('calcifyTheme');
+            if (savedTheme) {
+                this.state.theme = savedTheme === 'light' ? 'dark' : 'light';
+                this.toggleTheme();
             }
         } catch (error) {
             console.error('Error loading history:', error);
@@ -683,13 +755,73 @@ const History = {
     },
 
     clear() {
-        Calculator.state.calculationHistory = [];
-        this.save();
-        this.render();
+        if (confirm('¿Estás seguro de que quieres limpiar todo el historial?')) {
+            Calculator.state.calculationHistory = [];
+            this.save();
+            this.render();
+            this.updateCount();
+        }
+    },
+
+    export() {
+        try {
+            const data = JSON.stringify(Calculator.state.calculationHistory, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `calcify-history-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            URL.revokeObjectURL(url);
+            link.remove();
+        } catch (error) {
+            alert('Error al exportar historial: ' + error.message);
+        }
+    },
+
+    import() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = async (e) => {
+            try {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const text = await file.text();
+                const imported = JSON.parse(text);
+
+                if (!Array.isArray(imported)) {
+                    throw new Error('Formato de archivo inválido');
+                }
+
+                Calculator.state.calculationHistory = [...imported, ...Calculator.state.calculationHistory];
+                if (Calculator.state.calculationHistory.length > 50) {
+                    Calculator.state.calculationHistory = Calculator.state.calculationHistory.slice(0, 50);
+                }
+
+                this.save();
+                this.render();
+                this.updateCount();
+            } catch (error) {
+                alert('Error al importar historial: ' + error.message);
+            }
+        };
+        input.click();
+    },
+
+    updateCount() {
+        const badge = document.getElementById('history-count');
+        if (badge) {
+            badge.textContent = Calculator.state.calculationHistory.length;
+        }
     }
 };
 
 // Expose functions to global scope for HTML event handlers
+window.toggleNumberFormat = () => Calculator.toggleNumberFormat();
+window.toggleTheme = () => Calculator.toggleTheme();
 window.clearAll = () => Calculator.clearAll();
 window.backspace = () => Calculator.backspace();
 window.appendNumber = num => Calculator.appendNumber(num);
@@ -706,6 +838,8 @@ window.exportGLB = () => Graph.exportGLB();
 window.screenshotPNG = () => Graph.screenshotPNG();
 window.clearAddedObjects = () => Graph.clearAddedObjects();
 window.clearHistory = () => History.clear();
+window.exportHistory = () => History.export();
+window.importHistory = () => History.import();
 window.useHistory = expr => {
     Calculator.state.currentExpression = expr;
     Calculator.updateDisplay();
@@ -713,4 +847,7 @@ window.useHistory = expr => {
 };
 
 // Initialize on load
-window.onload = () => Calculator.init();
+window.onload = () => {
+    Calculator.init();
+    History.updateCount();
+};

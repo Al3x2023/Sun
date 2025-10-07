@@ -86,8 +86,93 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 20px;
-                gap: 20px;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .calculator h1 {
+                font-size: 1.4rem;
+            }
+
+            .back-button {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+
+            .display {
+                min-height: 100px;
+                padding: 15px;
+            }
+
+            .expression {
+                font-size: 1rem;
+            }
+
+            .result {
+                font-size: 1.8rem;
+            }
+
+            .keypad {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 12px 8px;
+                font-size: 1rem;
+            }
+
+            .format-options {
+                flex-direction: column;
+                gap: 8px !important;
+            }
+
+            .format-options button {
+                width: 100%;
+            }
+
+            .graph-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .graph-controls input,
+            .graph-controls select {
+                width: 100%;
+            }
+
+            .viewport-tools {
+                flex-wrap: wrap;
+            }
+
+            .viewport-tools button {
+                flex: 1 1 calc(50% - 5px);
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
+
+            .panel {
+                min-width: 100%;
+            }
+
+            #graph-canvas {
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .keypad {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .btn {
+                padding: 10px 6px;
+                font-size: 0.9rem;
+            }
+
+            .result {
+                font-size: 1.5rem;
             }
         }
 
@@ -130,9 +215,9 @@
             border-radius: 2px;
         }
 
-        .calculator h1::before {
-            content: '🧮';
+        .calculator h1 i {
             font-size: 1.5rem;
+            color: var(--primary-color);
         }
 
         .back-button {
@@ -678,14 +763,22 @@
     <a href="../index.html" class="back-button"><i class="fas fa-arrow-left"></i></a>
     <div class="container">
         <div class="calculator" style="grid-column:1; grid-row:1;">
-            <h1>Calculadora Científica</h1>
-            <div class="display">
-                <div class="expression" id="expression"></div>
-                <div class="result" id="result">0</div>
+            <h1><i class="fas fa-calculator"></i> Calculadora Científica</h1>
+            <div class="display" role="region" aria-label="Display de calculadora">
+                <div class="expression" id="expression" aria-label="Expresión actual"></div>
+                <div class="result" id="result" aria-live="polite" aria-label="Resultado">0</div>
             </div>
-            <div class="keypad">
-                <button class="btn clear" onclick="clearAll()">C</button>
-                <button class="btn function" onclick="backspace()">⌫</button>
+            <div class="format-options" style="display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;">
+                <button class="btn function" onclick="toggleNumberFormat()" style="font-size: 0.85rem; padding: 8px 12px;">
+                    <i class="fas fa-superscript"></i> Formato: Normal
+                </button>
+                <button class="btn function" onclick="toggleTheme()" style="font-size: 0.85rem; padding: 8px 12px;">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+            <div class="keypad" role="grid" aria-label="Teclado de calculadora">
+                <button class="btn clear" onclick="clearAll()" aria-label="Limpiar todo">C</button>
+                <button class="btn function" onclick="backspace()" aria-label="Borrar último carácter">⌫</button>
                 <button class="btn function" onclick="appendOperation('%')">%</button>
                 <button class="btn function" onclick="appendOperation('(')">(</button>
                 <button class="btn function" onclick="appendOperation(')')">)</button>
@@ -721,10 +814,10 @@
                 
                 <button class="btn number" onclick="appendNumber(0)">0</button>
                 <button class="btn number" onclick="appendDecimal()">.</button>
-                <button class="btn equals" onclick="calculate()">=</button>
+                <button class="btn equals" onclick="calculate()" aria-label="Calcular resultado">=</button>
                 <button class="btn operator" onclick="appendOperation('+')">+</button>
-                <button class="btn variable" onclick="appendVariable('w')">w</button>
-                <button class="btn function" onclick="appendOperation('sec(')">sec</button>
+                <button class="btn function" onclick="appendOperation('derivative(')">d/dx</button>
+                <button class="btn function" onclick="appendOperation('log(')">log</button>
             </div>
             <div class="keyboard-hint">Escribe directamente: x^2, sin(x), etc.</div>
         </div>
@@ -738,8 +831,14 @@
                 <!-- El historial se cargará aquí -->
             </div>
             <div class="history-actions">
+                <button class="history-btn" onclick="exportHistory()" style="background: var(--secondary-color);">
+                    <i class="fas fa-download"></i> Exportar
+                </button>
+                <button class="history-btn" onclick="importHistory()" style="background: var(--primary-color);">
+                    <i class="fas fa-upload"></i> Importar
+                </button>
                 <button class="history-btn" onclick="clearHistory()">
-                    <i class="fas fa-trash"></i> Limpiar Historial
+                    <i class="fas fa-trash"></i> Limpiar
                 </button>
             </div>
         </div>
@@ -758,7 +857,7 @@
                 </div>
                 
                 <div class="graph-controls">
-                    <input type="text" id="graphExpression" placeholder="Ejemplo: x^4 + y^4 + z^4 - 1" value="x^4 + y^4 + z^4 - 1">
+                    <input type="text" id="graphExpression" placeholder="Ejemplo: x^4 + y^4 + z^4 - 1" value="x^4 + y^4 + z^4 - 1" aria-label="Expresión matemática para graficar">
                     <input type="number" id="xMin" placeholder="X min" value="-2">
                     <input type="number" id="xMax" placeholder="X max" value="2">
                     <input type="number" id="yMin" placeholder="Y min" value="-2">
@@ -807,7 +906,7 @@
                     </div>
                 </div>
                 
-                <div id="graph-canvas" tabindex="0" aria-label="Viewport 3D de Calcify"></div>
+                <div id="graph-canvas" tabindex="0" role="img" aria-label="Vista 3D interactiva del gráfico matemático"></div>
                 
                 <div class="canvas-overlay">
                     <div class="viewport-tools">
