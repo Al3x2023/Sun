@@ -109,3 +109,53 @@ self.addEventListener('fetch', (event) => {
     })()
   );
 });
+
+// Manejo de notificaciones Push para funcionar con la app cerrada
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = {};
+  }
+
+  const title = data.title || 'Recordatorio de Taskee';
+  const body = data.body || 'Tienes una tarea próxima a vencer';
+  const url = data.url || '/Taskee/index.html';
+  const tag = data.tag || 'taskee-reminder';
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon: '/icons/icon-192.svg',
+      badge: '/icons/icon-192.svg',
+      tag,
+      data: { url }
+    })
+  );
+});
+
+// Foco/abrir la app al hacer clic en la notificación
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = (event.notification && event.notification.data && event.notification.data.url) || '/Taskee/index.html';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(targetUrl) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+
+// Intento de re-suscripción si la suscripción cambia
+self.addEventListener('pushsubscriptionchange', async (event) => {
+  // Aquí podríamos re-suscribir automáticamente usando VAPID público si se provee.
+  // La aplicación cliente debe manejar el envío de la nueva suscripción al backend.
+});

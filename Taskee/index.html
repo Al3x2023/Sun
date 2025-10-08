@@ -1314,6 +1314,47 @@
                     });
                 }
                 
+                // ===== Push API: suscripción para notificaciones persistentes (fuera de la app) =====
+                const VAPID_PUBLIC_KEY = 'REEMPLAZA_CON_TU_VAPID_PUBLIC_KEY'; // TODO: clave pública VAPID
+
+                function urlBase64ToUint8Array(base64String) {
+                    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+                    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+                    const rawData = atob(base64);
+                    const outputArray = new Uint8Array(rawData.length);
+                    for (let i = 0; i < rawData.length; ++i) {
+                        outputArray[i] = rawData.charCodeAt(i);
+                    }
+                    return outputArray;
+                }
+
+                async function subscribePush() {
+                    try {
+                        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                            return; // No compatible
+                        }
+                        const reg = await navigator.serviceWorker.ready;
+                        let sub = await reg.pushManager.getSubscription();
+                        if (!sub) {
+                            if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.includes('REEMPLAZA')) {
+                                console.warn('Falta VAPID_PUBLIC_KEY para suscripción Push.');
+                                return;
+                            }
+                            sub = await reg.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                            });
+                        }
+                        localStorage.setItem('taskee-push-subscription', JSON.stringify(sub));
+                        showNotification('Notificaciones externas listas', 'Suscripción Push creada', 'success');
+                        console.log('Push Subscription:', JSON.stringify(sub));
+                        // TODO: enviar la suscripción al backend
+                    } catch (err) {
+                        console.error('Error al suscribirse a Push:', err);
+                        showNotification('No se pudo activar Push', 'Revisa consola y VAPID', 'error');
+                    }
+                }
+                
                 // Comprobar si las notificaciones están soportadas
                 if (!('Notification' in window)) {
                     showNotification('No compatible', 'Tu navegador no soporta notificaciones nativas', 'warning');
@@ -1325,6 +1366,8 @@
                 if (Notification.permission === 'granted') {
                     notificationPermission = true;
                     notificationPermissionPanel.style.display = 'none';
+                    // Preparar suscripción Push para notificaciones externas
+                    subscribePush();
                     startNotificationChecker();
                     // Comprobar inmediatamente por si ya hay recordatorios próximos
                     checkReminders();
@@ -1529,6 +1572,8 @@
                     if (permission === 'granted') {
                         notificationPermission = true;
                         notificationPermissionPanel.style.display = 'none';
+                        // Preparar suscripción Push para notificaciones persistentes
+                        subscribePush();
                         startNotificationChecker();
                         // Reprogramar recordatorios ahora que hay permiso
                         rescheduleAllReminders();
